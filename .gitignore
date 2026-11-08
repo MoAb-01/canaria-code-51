@@ -1,0 +1,14 @@
+# Godot 4+ ignore rules
+.godot/
+*.translation
+*.tmp
+
+# Mono / .NET (if added later)
+.mono/
+data_*/
+mono_crash.*.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

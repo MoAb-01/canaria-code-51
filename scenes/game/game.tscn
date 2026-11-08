@@ -1,0 +1,127 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/game.gd" id="1_game_scr"]
+[ext_resource type="Script" path="res://scripts/ui/animated_ocean.gd" id="2_ocean_scr"]
+[ext_resource type="Texture2D" path="res://assets/textures/water_frames/water_00.png" id="3_water_init"]
+[ext_resource type="Texture2D" path="res://assets/textures/tower_foreground.png" id="4_tower_fg"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="5_player_scn"]
+[ext_resource type="AudioStream" path="res://assets/audio/teaser_ambient_16s.wav" id="6_amb_audio"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_deck"]
+size = Vector2(1150, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tower_plat"]
+size = Vector2(340, 24)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sea_floor"]
+size = Vector2(1920, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ladder"]
+size = Vector2(44, 460)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_water"]
+size = Vector2(1000, 320)
+
+[node name="GameLevel" type="Node2D"]
+script = ExtResource("1_game_scr")
+
+[node name="BackgroundCanvas" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="AnimatedBackground" type="TextureRect" parent="BackgroundCanvas"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_water_init")
+expand_mode = 1
+script = ExtResource("2_ocean_scr")
+fps = 8.0
+
+[node name="Environment" type="Node2D" parent="."]
+
+[node name="StaticPlatforms" type="StaticBody2D" parent="Environment"]
+collision_layer = 2
+collision_mask = 0
+
+[node name="CatwalkFloor" type="CollisionShape2D" parent="Environment/StaticPlatforms"]
+position = Vector2(1360, 995)
+shape = SubResource("RectangleShape2D_deck")
+
+[node name="TowerPlatform" type="CollisionShape2D" parent="Environment/StaticPlatforms"]
+position = Vector2(1750, 560)
+shape = SubResource("RectangleShape2D_tower_plat")
+
+[node name="TowerRoof" type="CollisionShape2D" parent="Environment/StaticPlatforms"]
+position = Vector2(1780, 210)
+shape = SubResource("RectangleShape2D_tower_plat")
+
+[node name="SeaFloor" type="CollisionShape2D" parent="Environment/StaticPlatforms"]
+position = Vector2(960, 1070)
+shape = SubResource("RectangleShape2D_sea_floor")
+
+[node name="LeftWall" type="CollisionShape2D" parent="Environment/StaticPlatforms"]
+position = Vector2(-15, 540)
+shape = SubResource("RectangleShape2D_ladder")
+
+[node name="RightWall" type="CollisionShape2D" parent="Environment/StaticPlatforms"]
+position = Vector2(1935, 540)
+shape = SubResource("RectangleShape2D_ladder")
+
+[node name="Ladder" type="Area2D" parent="Environment"]
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Environment/Ladder"]
+position = Vector2(1670, 775)
+shape = SubResource("RectangleShape2D_ladder")
+
+[node name="WaterZone" type="Area2D" parent="Environment"]
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Environment/WaterZone"]
+position = Vector2(400, 925)
+shape = SubResource("RectangleShape2D_water")
+
+[node name="Player" parent="." instance=ExtResource("5_player_scn")]
+position = Vector2(1100, 940)
+z_index = 2
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+position = Vector2(0, -60)
+limit_left = 0
+limit_top = 0
+limit_right = 1920
+limit_bottom = 1080
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0
+
+[node name="ForegroundRailing" type="Sprite2D" parent="."]
+z_index = 10
+position = Vector2(960, 540)
+texture = ExtResource("4_tower_fg")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Margin" type="MarginContainer" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 50.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 18
+
+[node name="Instructions" type="Label" parent="HUD/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.996, 0.827, 0.553, 0.9)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 15
+text = "[A / D] Move   •   [SPACE] Jump / Swim   •   [W / S] Climb Tower Ladder   •   [ESC] Return to Menu"
+
+[node name="AmbientAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_amb_audio")
+autoplay = true

@@ -1,0 +1,275 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/menu/main_menu.gd" id="1_menu_scr"]
+[ext_resource type="Theme" path="res://themes/coastal_theme.tres" id="2_theme"]
+[ext_resource type="Shader" path="res://shaders/ocean_water.gdshader" id="3_water_shd"]
+[ext_resource type="Texture2D" path="res://assets/textures/clean_scene_1080p.png" id="4_clean_bg"]
+[ext_resource type="Script" path="res://scripts/ui/distant_ship.gd" id="5_ship_scr"]
+[ext_resource type="Texture2D" path="res://assets/textures/mascot_sprite.png" id="6_mascot_tex"]
+[ext_resource type="AudioStream" path="res://assets/audio/teaser_ambient_16s.wav" id="7_amb_audio"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ocean"]
+shader = ExtResource("3_water_shd")
+shader_parameter/wave_speed = 2.2
+shader_parameter/wave_freq = 24.0
+shader_parameter/wave_amp = 0.0035
+shader_parameter/horizon_y = 0.675
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_menu_scr")
+
+[node name="Background" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_ocean")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_clean_bg")
+expand_mode = 1
+
+[node name="DistantCruiseShip" type="Sprite2D" parent="."]
+position = Vector2(700, 728)
+script = ExtResource("5_ship_scr")
+travel_speed = 7.0
+
+[node name="LeftMenuContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_left = 60.0
+offset_top = 60.0
+offset_right = 440.0
+offset_bottom = -60.0
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="LeftMenuContainer"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="TitleBox" type="VBoxContainer" parent="LeftMenuContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HeaderRow" type="HBoxContainer" parent="LeftMenuContainer/VBox/TitleBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="MascotIcon" type="TextureRect" parent="LeftMenuContainer/VBox/TitleBox/HeaderRow"]
+custom_minimum_size = Vector2(44, 38)
+layout_mode = 2
+texture = ExtResource("6_mascot_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleLabel" type="Label" parent="LeftMenuContainer/VBox/TitleBox/HeaderRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.996, 0.827, 0.553, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 28
+text = "CANARIA CODE 51"
+
+[node name="AuthorLabel" type="Label" parent="LeftMenuContainer/VBox/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.886, 0.596, 0.384, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 14
+text = "@Mohamed Abdou"
+
+[node name="Divider" type="ColorRect" parent="LeftMenuContainer/VBox"]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+color = Color(0.741, 0.447, 0.286, 0.6)
+
+[node name="ButtonsList" type="VBoxContainer" parent="LeftMenuContainer/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="StartButton" type="Button" parent="LeftMenuContainer/VBox/ButtonsList"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "PLAY"
+
+[node name="OptionsButton" type="Button" parent="LeftMenuContainer/VBox/ButtonsList"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "OPTIONS"
+
+[node name="CreditsButton" type="Button" parent="LeftMenuContainer/VBox/ButtonsList"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "CREDITS"
+
+[node name="QuitButton" type="Button" parent="LeftMenuContainer/VBox/ButtonsList"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "QUIT"
+
+[node name="PressKeyPrompt" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -120.0
+offset_right = 300.0
+offset_bottom = -70.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.996, 0.827, 0.553, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 28
+text = "— PRESS ANY KEY TO START —"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="OptionsPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -130.0
+offset_right = 220.0
+offset_bottom = 130.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="OptionsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="OptionsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="OptionsPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.996, 0.827, 0.553, 1)
+theme_override_font_sizes/font_size = 22
+text = "SETTINGS"
+horizontal_alignment = 1
+
+[node name="VolumeBox" type="HBoxContainer" parent="OptionsPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="VolLabel" type="Label" parent="OptionsPanel/Margin/VBox/VolumeBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Volume: "
+
+[node name="VolumeSlider" type="HSlider" parent="OptionsPanel/Margin/VBox/VolumeBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.05
+value = 0.8
+
+[node name="FullscreenCheck" type="CheckBox" parent="OptionsPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Fullscreen"
+
+[node name="CloseOptionsButton" type="Button" parent="OptionsPanel/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "BACK"
+
+[node name="CreditsPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -120.0
+offset_right = 240.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="CreditsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="CreditsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="GameTitle" type="Label" parent="CreditsPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.996, 0.827, 0.553, 1)
+theme_override_font_sizes/font_size = 22
+text = "CANARIA CODE 51"
+horizontal_alignment = 1
+
+[node name="Author" type="Label" parent="CreditsPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Created by @Mohamed Abdou"
+horizontal_alignment = 1
+
+[node name="CloseCreditsButton" type="Button" parent="CreditsPanel/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "CLOSE"
+
+[node name="FadeOverlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="AmbientAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7_amb_audio")
+autoplay = true
+
+[node name="SFXPlayer" type="AudioStreamPlayer" parent="."]
