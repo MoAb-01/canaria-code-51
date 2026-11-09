@@ -2,6 +2,10 @@
 
 [ext_resource type="Script" path="res://scripts/characters/tariq.gd" id="1_tariq_scr"]
 [ext_resource type="Texture2D" path="res://assets/tariq/tariq_spritesheet.png" id="2_sheet"]
+[ext_resource type="Texture2D" path="res://assets/sprites/tariq/tariq_flashlight.png" id="3_fl_sheet"]
+[ext_resource type="Texture2D" path="res://assets/textures/flashlight_cone.png" id="4_cone_tex"]
+[ext_resource type="Texture2D" path="res://assets/textures/flashlight_spill.png" id="5_spill_tex"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx_flashlight.wav" id="6_sfx_click"]
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_down_0"]
 atlas = ExtResource("2_sheet")
@@ -150,6 +154,82 @@ region = Rect2(32, 560, 32, 40)
 [sub_resource type="AtlasTexture" id="Atlas_jump_up_2"]
 atlas = ExtResource("2_sheet")
 region = Rect2(64, 560, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_idle_down_col0"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(0, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_idle_down_col1"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(32, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_idle_side_col2"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(64, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_idle_side_col3"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(96, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_idle_side_col4"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(128, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_idle_up_col5"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(160, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_idle_up_col6"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(192, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_walk_down_col0"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(0, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_walk_down_col1"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(32, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_walk_side_col2"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(64, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_walk_side_col3"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(96, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_walk_side_col4"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(128, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_walk_up_col5"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(160, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_walk_up_col6"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(192, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_crouch_down_col0"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(0, 80, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_crouch_side_col1"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(32, 80, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_crouch_side_col2"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(64, 80, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_crouch_side_col3"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(96, 80, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_flashlight_crouch_up_col4"]
+atlas = ExtResource("3_fl_sheet")
+region = Rect2(128, 80, 32, 40)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_tariq"]
 animations = [{
@@ -335,6 +415,96 @@ animations = [{
 "loop": false,
 "name": &"jump_up",
 "speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_idle_down_col0")
+}],
+"loop": false,
+"name": &"flashlight_idle_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_idle_side_col2")
+}],
+"loop": false,
+"name": &"flashlight_idle_side",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_idle_up_col6")
+}],
+"loop": false,
+"name": &"flashlight_idle_up",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_walk_down_col0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_walk_down_col1")
+}],
+"loop": true,
+"name": &"flashlight_walk_down",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_walk_side_col2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_walk_side_col3")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_walk_side_col4")
+}],
+"loop": true,
+"name": &"flashlight_walk_side",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_walk_up_col5")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_walk_up_col6")
+}],
+"loop": true,
+"name": &"flashlight_walk_up",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_crouch_down_col0")
+}],
+"loop": true,
+"name": &"flashlight_crouch_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_crouch_side_col1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_crouch_side_col2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_crouch_side_col3")
+}],
+"loop": true,
+"name": &"flashlight_crouch_side",
+"speed": 6.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_flashlight_crouch_up_col4")
+}],
+"loop": true,
+"name": &"flashlight_crouch_up",
+"speed": 5.0
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_detect"]
@@ -344,6 +514,7 @@ radius = 64.0
 size = Vector2(36, 16)
 
 [node name="Tariq" type="CharacterBody2D"]
+y_sort_enabled = true
 motion_mode = 1
 collision_layer = 1
 collision_mask = 2
@@ -379,3 +550,30 @@ collision_mask = 4
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionDetector"]
 position = Vector2(0, -10)
 shape = SubResource("CircleShape2D_detect")
+
+[node name="FlashlightPivot" type="Node2D" parent="."]
+position = Vector2(0, -14)
+
+[node name="FlashlightCone" type="PointLight2D" parent="FlashlightPivot"]
+enabled = false
+color = Color(1, 0.94902, 0.8, 1)
+energy = 1.2
+range_layer_min = -10
+range_layer_max = 5
+shadow_enabled = true
+texture = ExtResource("4_cone_tex")
+texture_scale = 2.2
+
+[node name="FlashlightSpill" type="PointLight2D" parent="FlashlightPivot"]
+enabled = false
+color = Color(1, 0.94902, 0.8, 1)
+energy = 0.3
+range_layer_min = -10
+range_layer_max = 5
+texture = ExtResource("5_spill_tex")
+texture_scale = 1.6
+
+[node name="FlashlightAudio" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_sfx_click")
+bus = &"SFX"
+

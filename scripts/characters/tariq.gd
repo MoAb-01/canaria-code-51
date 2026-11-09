@@ -2,9 +2,10 @@ class_name Player
 extends BaseCharacter
 ## Tariq — Player controller inheriting BaseCharacter.
 ## Implements top-down movement with 4-direction support,
-## sprinting, sneak/crouching, pseudo-Z jumping, and generous proximity-based NPC interaction.
+## sprinting, sneak/crouching, pseudo-Z jumping, 2D cone flashlight,
+## and generous proximity-based NPC interaction.
 
-enum State { IDLE, WALK, SPRINT, CROUCH, JUMP }
+enum State { IDLE, WALK, SPRINT, CROUCH, JUMP, COMBAT, GRAB, NORMAL }
 
 const SPRINT_SPEED: float = 270.0
 const WALK_SPEED: float = 180.0
@@ -16,6 +17,9 @@ const JUMP_VELOCITY: float = 285.0
 const Z_GRAVITY: float = 900.0
 const BASE_VISUAL_Y: float = 0.0
 
+@export var has_flashlight: bool = true
+var flashlight_on: bool = false
+
 var current_state: State = State.IDLE
 var z_pos: float = 0.0
 var z_velocity: float = 0.0
@@ -25,10 +29,15 @@ var interaction_cooldown: float = 0.0
 
 @onready var interaction_ray: RayCast2D = $InteractionRay if has_node("InteractionRay") else null
 @onready var interaction_detector: Area2D = $InteractionDetector if has_node("InteractionDetector") else null
+@onready var flashlight_pivot: Node2D = $FlashlightPivot if has_node("FlashlightPivot") else null
+@onready var flashlight_cone: PointLight2D = $FlashlightPivot/FlashlightCone if has_node("FlashlightPivot/FlashlightCone") else null
+@onready var flashlight_spill: PointLight2D = $FlashlightPivot/FlashlightSpill if has_node("FlashlightPivot/FlashlightSpill") else null
+@onready var flashlight_audio: AudioStreamPlayer2D = $FlashlightAudio if has_node("FlashlightAudio") else null
 
 func _ready() -> void:
 	super._ready()
 	_ensure_input_actions()
+	_update_flashlight_visibility()
 	_update_interaction_ray_direction()
 	_update_visuals()
 
@@ -51,13 +60,13 @@ func _character_process(delta: float) -> void:
 		interaction_cooldown = 0.35
 		velocity = velocity.move_toward(Vector2.ZERO, FRICTION * delta)
 		move_and_slide()
-		play_locomotion(false)
+		if flashlight_on:
+			play_directional_anim("flashlight_idle")
+		else:
+			play_locomotion(false)
 		return
 
-	# Handle interaction trigger (guarded by cooldown so closing keypress never re-opens)
-	if interaction_cooldown <= 0.0 and Input.is_action_just_pressed("interact"):
-		interaction_cooldown = 0.35
-		_try_interact()
+	_handle_actions()
 
 	var input_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	var wants_crouch := Input.is_action_pressed("crouch")
@@ -104,6 +113,43 @@ func _character_process(delta: float) -> void:
 
 	move_and_slide()
 	_update_visuals()
+
+func _handle_actions() -> void:
+	# Handle interaction trigger (guarded by cooldown so closing keypress never re-opens)
+	if interaction_cooldown <= 0.0 and Input.is_action_just_pressed("interact"):
+		interaction_cooldown = 0.35
+		_try_interact()
+
+	# Flashlight Toggle (F key / D-pad Left)
+	if has_flashlight and Input.is_action_just_pressed("toggle_flashlight"):
+		flashlight_on = !flashlight_on
+		_play_flashlight_sfx()
+		_update_flashlight_visibility()
+
+func _play_flashlight_sfx() -> void:
+	if flashlight_audio:
+		# Pitch variation for tactile mechanical realism: slightly crisper click on turn-on
+		flashlight_audio.pitch_scale = randf_range(1.04, 1.08) if flashlight_on else randf_range(0.94, 0.98)
+		flashlight_audio.play()
+
+func _update_flashlight_visibility() -> void:
+	var should_light: bool = flashlight_on and (current_state != State.JUMP)
+	if flashlight_cone:
+		flashlight_cone.enabled = should_light
+	if flashlight_spill:
+		flashlight_spill.enabled = should_light
+
+func _update_light_direction() -> void:
+	if not flashlight_pivot:
+		return
+	if last_facing_dir == Vector2.RIGHT:
+		flashlight_pivot.rotation_degrees = 0.0
+	elif last_facing_dir == Vector2.DOWN:
+		flashlight_pivot.rotation_degrees = 90.0
+	elif last_facing_dir == Vector2.LEFT:
+		flashlight_pivot.rotation_degrees = 180.0
+	elif last_facing_dir == Vector2.UP:
+		flashlight_pivot.rotation_degrees = 270.0
 
 func _update_interaction_ray_direction() -> void:
 	if interaction_ray:
@@ -161,6 +207,8 @@ func _try_interact() -> void:
 				collider.interact(self)
 
 func _update_visuals() -> void:
+	_update_light_direction()
+	_update_flashlight_visibility()
 	if not sprite:
 		return
 
@@ -173,17 +221,29 @@ func _update_visuals() -> void:
 		shadow.scale = Vector2(s, s)
 
 	var moving := velocity.length() > 5.0
-	match current_state:
-		State.JUMP:
-			play_directional_anim("jump")
-		State.CROUCH:
-			play_directional_anim("crouch_walk" if moving else "crouch_idle")
-		State.SPRINT:
-			play_directional_anim("walk")
-		State.WALK:
-			play_directional_anim("walk")
-		State.IDLE:
-			play_directional_anim("idle")
+
+	if current_state == State.COMBAT or current_state == State.GRAB:
+		return
+
+	if flashlight_on:
+		match current_state:
+			State.CROUCH:
+				play_directional_anim("flashlight_crouch")
+				if not moving:
+					sprite.pause()
+					sprite.frame = 0
+			State.JUMP:
+				play_directional_anim("jump")
+			_:
+				play_directional_anim("flashlight_walk" if moving else "flashlight_idle")
+	else:
+		match current_state:
+			State.CROUCH:
+				play_directional_anim("crouch_walk" if moving else "crouch_idle")
+			State.JUMP:
+				play_directional_anim("jump")
+			_:
+				play_directional_anim("walk" if moving else "idle")
 
 func _ensure_input_actions() -> void:
 	var bindings := {
@@ -194,7 +254,8 @@ func _ensure_input_actions() -> void:
 		"jump": [KEY_SPACE],
 		"crouch": [KEY_CTRL, KEY_C],
 		"sprint": [KEY_SHIFT],
-		"interact": [KEY_E, KEY_F, KEY_ENTER],
+		"interact": [KEY_E, KEY_ENTER],
+		"toggle_flashlight": [KEY_F],
 	}
 	for action in bindings:
 		if not InputMap.has_action(action):
@@ -209,3 +270,14 @@ func _ensure_input_actions() -> void:
 				var ev := InputEventKey.new()
 				ev.physical_keycode = key
 				InputMap.action_add_event(action, ev)
+
+	# Also bind D-Pad Left joypad button to toggle_flashlight
+	var has_dpad := false
+	for ev in InputMap.action_get_events("toggle_flashlight"):
+		if ev is InputEventJoypadButton and ev.button_index == JOY_BUTTON_DPAD_LEFT:
+			has_dpad = true
+			break
+	if not has_dpad:
+		var joy_ev := InputEventJoypadButton.new()
+		joy_ev.button_index = JOY_BUTTON_DPAD_LEFT
+		InputMap.action_add_event("toggle_flashlight", joy_ev)

@@ -75,6 +75,9 @@ func get_direction_suffix() -> String:
 		return "down"
 	return "side"
 
+func _get_dir_suffix() -> String:
+	return get_direction_suffix()
+
 ## Snaps an analog/diagonal vector to the dominant cardinal unit vector.
 func _to_cardinal(v: Vector2) -> Vector2:
 	if v == Vector2.ZERO:

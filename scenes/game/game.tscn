@@ -14,6 +14,9 @@ size = Vector2(30, 840)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_crate"]
 size = Vector2(70, 30)
 
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_crate"]
+polygon = PackedVector2Array(-35, -27, 35, -27, 35, 0, -35, 0)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_crate"]
 bg_color = Color(0.25, 0.35, 0.45, 1)
 border_width_left = 3
@@ -136,6 +139,9 @@ vertical_alignment = 1
 position = Vector2(0, -12)
 shape = SubResource("RectangleShape2D_crate")
 
+[node name="LightOccluder2D" type="LightOccluder2D" parent="World/TestCrate1"]
+occluder = SubResource("OccluderPolygon2D_crate")
+
 [node name="TestCrate2" type="StaticBody2D" parent="World"]
 y_sort_enabled = true
 position = Vector2(1240, 620)
@@ -170,6 +176,9 @@ vertical_alignment = 1
 [node name="CollisionShape2D" type="CollisionShape2D" parent="World/TestCrate2"]
 position = Vector2(0, -12)
 shape = SubResource("RectangleShape2D_crate")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="World/TestCrate2"]
+occluder = SubResource("OccluderPolygon2D_crate")
 
 [node name="CrewOfficerNPC" parent="World" instance=ExtResource("3_npc_scn")]
 position = Vector2(800, 540)
@@ -215,4 +224,4 @@ theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 20
-text = "[W / A / S / D] Move   •   [SHIFT] Sprint   •   [CTRL / C] Sneak   •   [SPACE] Jump   •   [E] Talk to NPC   •   [ESC] Menu"
+text = "[W / A / S / D] Move   •   [F] Flashlight   •   [SHIFT] Sprint   •   [CTRL / C] Sneak   •   [SPACE] Jump   •   [E] Talk to NPC   •   [ESC] Menu"
