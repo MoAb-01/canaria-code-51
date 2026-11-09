@@ -50,12 +50,6 @@ func _process(delta: float) -> void:
 	if elapsed >= 3.8 and not is_transitioning:
 		start_fade_out()
 
-func _unhandled_input(event: InputEvent) -> void:
-	if is_transitioning:
-		return
-	if (event is InputEventKey or event is InputEventMouseButton) and event.is_pressed():
-		start_fade_out()
-
 func start_fade_out() -> void:
 	if is_transitioning:
 		return

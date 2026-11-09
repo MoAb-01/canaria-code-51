@@ -1,15 +1,16 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
-[ext_resource type="Script" path="res://scripts/menu/main_menu.gd" id="1_menu_scr"]
-[ext_resource type="Theme" path="res://themes/coastal_theme.tres" id="2_theme"]
-[ext_resource type="Texture2D" path="res://assets/environment/menu/sky_sunset.png" id="3_sky_tex"]
-[ext_resource type="Texture2D" path="res://assets/environment/menu/wave_strip.png" id="4_wave_tex"]
-[ext_resource type="Texture2D" path="res://assets/environment/menu/cruise_ship_distant.png" id="5_ship_tex"]
-[ext_resource type="Script" path="res://scenes/menu/cruise_bob.gd" id="6_bob_scr"]
-[ext_resource type="Texture2D" path="res://assets/environment/menu/sun_glint_reflection.png" id="7_glint_tex"]
-[ext_resource type="Texture2D" path="res://assets/textures/title_overlay.png" id="8_logo_tex"]
+[ext_resource type="Theme" path="res://themes/coastal_theme.tres" id="1_theme"]
+[ext_resource type="Texture2D" path="res://assets/environment/menu/sky_sunset.png" id="2_sky_tex"]
+[ext_resource type="Texture2D" path="res://assets/environment/menu/wave_strip.png" id="3_wave_tex"]
+[ext_resource type="Texture2D" path="res://assets/environment/menu/cruise_ship_distant.png" id="4_ship_tex"]
+[ext_resource type="Script" path="res://scenes/menu/cruise_bob.gd" id="5_bob_scr"]
+[ext_resource type="Texture2D" path="res://assets/environment/menu/sun_glint_reflection.png" id="6_glint_tex"]
+[ext_resource type="Texture2D" path="res://assets/textures/title_overlay.png" id="7_logo_tex"]
+[ext_resource type="Script" path="res://scenes/menu/menu_controller.gd" id="8_ctrl_scr"]
 [ext_resource type="Script" path="res://scenes/menu/menu_button.gd" id="9_btn_scr"]
 [ext_resource type="AudioStream" path="res://assets/audio/teaser_ambient_16s.wav" id="10_amb_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="11_click_audio"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ghost"]
 
@@ -20,15 +21,14 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("2_theme")
-script = ExtResource("1_menu_scr")
+theme = ExtResource("1_theme")
 
 [node name="BackgroundLayers" type="Node2D" parent="."]
 
 [node name="Sky" type="TextureRect" parent="BackgroundLayers"]
 offset_right = 1920.0
 offset_bottom = 1080.0
-texture = ExtResource("3_sky_tex")
+texture = ExtResource("2_sky_tex")
 expand_mode = 1
 
 [node name="WaveLayerFar" type="Parallax2D" parent="BackgroundLayers"]
@@ -40,7 +40,7 @@ autoscroll = Vector2(-6, 0)
 self_modulate = Color(0.55, 0.72, 0.85, 1)
 position = Vector2(0, 620)
 scale = Vector2(1, 1.35)
-texture = ExtResource("4_wave_tex")
+texture = ExtResource("3_wave_tex")
 centered = false
 
 [node name="ShipGroup" type="Node2D" parent="BackgroundLayers"]
@@ -49,14 +49,14 @@ position = Vector2(1540, 546)
 [node name="CruiseShip" type="Sprite2D" parent="BackgroundLayers/ShipGroup"]
 position = Vector2(0, -24)
 scale = Vector2(1.8, 1.8)
-texture = ExtResource("5_ship_tex")
-script = ExtResource("6_bob_scr")
+texture = ExtResource("4_ship_tex")
+script = ExtResource("5_bob_scr")
 
 [node name="SunReflection" type="Sprite2D" parent="BackgroundLayers/ShipGroup"]
 z_index = 2
 position = Vector2(2, 60)
 scale = Vector2(1.8, 1.6)
-texture = ExtResource("7_glint_tex")
+texture = ExtResource("6_glint_tex")
 
 [node name="WaveLayerMid" type="Parallax2D" parent="BackgroundLayers"]
 z_index = 3
@@ -67,7 +67,7 @@ autoscroll = Vector2(-14, 0)
 self_modulate = Color(0.36, 0.52, 0.68, 1)
 position = Vector2(-380, 745)
 scale = Vector2(1, 1.5)
-texture = ExtResource("4_wave_tex")
+texture = ExtResource("3_wave_tex")
 centered = false
 
 [node name="WaveLayerClose" type="Parallax2D" parent="BackgroundLayers"]
@@ -79,49 +79,62 @@ autoscroll = Vector2(-24, 0)
 self_modulate = Color(0.2, 0.32, 0.48, 1)
 position = Vector2(-820, 875)
 scale = Vector2(1, 1.5)
-texture = ExtResource("4_wave_tex")
+texture = ExtResource("3_wave_tex")
 centered = false
 
 [node name="MenuUI" type="CanvasLayer" parent="."]
 
 [node name="MarginContainer" type="MarginContainer" parent="MenuUI"]
-anchors_preset = 9
-anchor_bottom = 1.0
-offset_left = 90.0
-offset_top = 70.0
-offset_right = 860.0
-offset_bottom = -50.0
-grow_vertical = 2
+offset_left = 48.0
+offset_top = 24.0
+offset_right = 900.0
+offset_bottom = 1000.0
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MenuUI/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 42
+theme_override_constants/separation = 18
 
-[node name="LogoRect" type="TextureRect" parent="MenuUI/MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(730, 265)
+[node name="Logo" type="TextureRect" parent="MenuUI/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(680, 246)
 layout_mode = 2
 size_flags_horizontal = 0
-texture = ExtResource("8_logo_tex")
+texture = ExtResource("7_logo_tex")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="ButtonsContainer" type="VBoxContainer" parent="MenuUI/MarginContainer/VBoxContainer"]
+[node name="MenuRack" type="Control" parent="MenuUI/MarginContainer/VBoxContainer" node_paths=PackedStringArray("click_player")]
+custom_minimum_size = Vector2(480, 320)
 layout_mode = 2
-theme_override_constants/separation = 14
+script = ExtResource("8_ctrl_scr")
+click_player = NodePath("../../../../ClickPlayer")
 
-[node name="PlayButton" type="Button" parent="MenuUI/MarginContainer/VBoxContainer/ButtonsContainer"]
-unique_name_in_owner = true
+[node name="MainButtons" type="VBoxContainer" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="PlayBtn" type="Button" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/MainButtons"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+focus_neighbor_top = NodePath("../QuitBtn")
+focus_neighbor_bottom = NodePath("../OptionsBtn")
+focus_next = NodePath("../OptionsBtn")
+focus_previous = NodePath("../QuitBtn")
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_focus_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_hover_color = Color(1, 0.604, 0.122, 1)
 theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
 theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
-theme_override_constants/shadow_offset_x = 5
-theme_override_constants/shadow_offset_y = 5
-theme_override_constants/outline_size = 12
-theme_override_font_sizes/font_size = 56
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 46
 theme_override_styles/normal = SubResource("StyleBoxEmpty_ghost")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_ghost")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_ghost")
@@ -132,19 +145,22 @@ flat = true
 alignment = 0
 script = ExtResource("9_btn_scr")
 
-[node name="OptionsButton" type="Button" parent="MenuUI/MarginContainer/VBoxContainer/ButtonsContainer"]
-unique_name_in_owner = true
+[node name="OptionsBtn" type="Button" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/MainButtons"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+focus_neighbor_top = NodePath("../PlayBtn")
+focus_neighbor_bottom = NodePath("../CreditsBtn")
+focus_next = NodePath("../CreditsBtn")
+focus_previous = NodePath("../PlayBtn")
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_focus_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_hover_color = Color(1, 0.604, 0.122, 1)
 theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
 theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
-theme_override_constants/shadow_offset_x = 5
-theme_override_constants/shadow_offset_y = 5
-theme_override_constants/outline_size = 12
-theme_override_font_sizes/font_size = 56
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 46
 theme_override_styles/normal = SubResource("StyleBoxEmpty_ghost")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_ghost")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_ghost")
@@ -155,19 +171,22 @@ flat = true
 alignment = 0
 script = ExtResource("9_btn_scr")
 
-[node name="CreditsButton" type="Button" parent="MenuUI/MarginContainer/VBoxContainer/ButtonsContainer"]
-unique_name_in_owner = true
+[node name="CreditsBtn" type="Button" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/MainButtons"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+focus_neighbor_top = NodePath("../OptionsBtn")
+focus_neighbor_bottom = NodePath("../QuitBtn")
+focus_next = NodePath("../QuitBtn")
+focus_previous = NodePath("../OptionsBtn")
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_focus_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_hover_color = Color(1, 0.604, 0.122, 1)
 theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
 theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
-theme_override_constants/shadow_offset_x = 5
-theme_override_constants/shadow_offset_y = 5
-theme_override_constants/outline_size = 12
-theme_override_font_sizes/font_size = 56
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 46
 theme_override_styles/normal = SubResource("StyleBoxEmpty_ghost")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_ghost")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_ghost")
@@ -178,19 +197,22 @@ flat = true
 alignment = 0
 script = ExtResource("9_btn_scr")
 
-[node name="QuitButton" type="Button" parent="MenuUI/MarginContainer/VBoxContainer/ButtonsContainer"]
-unique_name_in_owner = true
+[node name="QuitBtn" type="Button" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/MainButtons"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+focus_neighbor_top = NodePath("../CreditsBtn")
+focus_neighbor_bottom = NodePath("../PlayBtn")
+focus_next = NodePath("../PlayBtn")
+focus_previous = NodePath("../CreditsBtn")
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_focus_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_hover_color = Color(1, 0.604, 0.122, 1)
 theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
 theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
-theme_override_constants/shadow_offset_x = 5
-theme_override_constants/shadow_offset_y = 5
-theme_override_constants/outline_size = 12
-theme_override_font_sizes/font_size = 56
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 46
 theme_override_styles/normal = SubResource("StyleBoxEmpty_ghost")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_ghost")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_ghost")
@@ -201,112 +223,167 @@ flat = true
 alignment = 0
 script = ExtResource("9_btn_scr")
 
-[node name="OptionsPanel" type="PanelContainer" parent="MenuUI"]
-unique_name_in_owner = true
+[node name="SettingsRack" type="VBoxContainer" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack"]
 visible = false
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -220.0
-offset_top = -130.0
-offset_right = 220.0
-offset_bottom = 130.0
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 8
 
-[node name="Margin" type="MarginContainer" parent="MenuUI/OptionsPanel"]
+[node name="MasterRow" type="HBoxContainer" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 20
+theme_override_constants/separation = 24
 
-[node name="VBox" type="VBoxContainer" parent="MenuUI/OptionsPanel/Margin"]
+[node name="TitleLabel" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack/MasterRow"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "MASTER VOLUME"
 
-[node name="Title" type="Label" parent="MenuUI/OptionsPanel/Margin/VBox"]
+[node name="ValueLabel" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack/MasterRow"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.996, 0.827, 0.553, 1)
-theme_override_font_sizes/font_size = 22
-text = "SETTINGS"
-horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "<  80%  >"
 
-[node name="VolumeBox" type="HBoxContainer" parent="MenuUI/OptionsPanel/Margin/VBox"]
+[node name="MusicRow" type="HBoxContainer" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack"]
 layout_mode = 2
+theme_override_constants/separation = 24
 
-[node name="VolLabel" type="Label" parent="MenuUI/OptionsPanel/Margin/VBox/VolumeBox"]
+[node name="TitleLabel" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack/MusicRow"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Volume: "
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "MUSIC VOLUME"
 
-[node name="VolumeSlider" type="HSlider" parent="MenuUI/OptionsPanel/Margin/VBox/VolumeBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 0)
+[node name="ValueLabel" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack/MusicRow"]
 layout_mode = 2
-size_flags_horizontal = 3
-max_value = 1.0
-step = 0.05
-value = 0.8
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "< 100%  >"
 
-[node name="FullscreenCheck" type="CheckBox" parent="MenuUI/OptionsPanel/Margin/VBox"]
-unique_name_in_owner = true
+[node name="SfxRow" type="HBoxContainer" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Fullscreen"
+theme_override_constants/separation = 24
 
-[node name="CloseOptionsButton" type="Button" parent="MenuUI/OptionsPanel/Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 38)
+[node name="TitleLabel" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack/SfxRow"]
 layout_mode = 2
-text = "BACK"
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "SFX VOLUME"
 
-[node name="CreditsPanel" type="PanelContainer" parent="MenuUI"]
-unique_name_in_owner = true
-visible = false
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -240.0
-offset_top = -120.0
-offset_right = 240.0
-offset_bottom = 120.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Margin" type="MarginContainer" parent="MenuUI/CreditsPanel"]
+[node name="ValueLabel" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack/SfxRow"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 20
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "<  80%  >"
 
-[node name="VBox" type="VBoxContainer" parent="MenuUI/CreditsPanel/Margin"]
+[node name="UiClickRow" type="HBoxContainer" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 24
 
-[node name="GameTitle" type="Label" parent="MenuUI/CreditsPanel/Margin/VBox"]
+[node name="TitleLabel" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack/UiClickRow"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.996, 0.827, 0.553, 1)
-theme_override_font_sizes/font_size = 22
-text = "CANARIA CODE 51"
-horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "UI CLICKS"
 
-[node name="Author" type="Label" parent="MenuUI/CreditsPanel/Margin/VBox"]
+[node name="ValueLabel" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack/UiClickRow"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Created by @Mohamed Abdou"
-horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "<  ON  >"
 
-[node name="CloseCreditsButton" type="Button" parent="MenuUI/CreditsPanel/Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 38)
+[node name="DisplayRow" type="HBoxContainer" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack"]
 layout_mode = 2
-text = "CLOSE"
+theme_override_constants/separation = 24
+
+[node name="TitleLabel" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack/DisplayRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "DISPLAY"
+
+[node name="ValueLabel" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack/DisplayRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "< FULLSCREEN >"
+
+[node name="BackBtn" type="Button" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/SettingsRack"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_focus_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_hover_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxEmpty_ghost")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_ghost")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_ghost")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_ghost")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_ghost")
+text = "> BACK"
+flat = true
+alignment = 0
 
 [node name="FadeOverlay" type="ColorRect" parent="MenuUI"]
 unique_name_in_owner = true
@@ -316,10 +393,11 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0, 0, 0, 1)
+color = Color(0, 0, 0, 0)
 
 [node name="AmbientAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("10_amb_audio")
 autoplay = true
 
-[node name="SFXPlayer" type="AudioStreamPlayer" parent="."]
+[node name="ClickPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11_click_audio")

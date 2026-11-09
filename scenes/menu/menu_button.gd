@@ -6,7 +6,7 @@ var base_text: String = ""
 
 func _ready() -> void:
 	base_text = text.trim_prefix("> ")
-	modulate = Color("eeeeee")
+	modulate = Color("e5edf5")
 	mouse_entered.connect(_on_mouse_entered)
 	focus_entered.connect(_on_hover)
 	mouse_exited.connect(_on_blur)
@@ -18,7 +18,7 @@ func _on_mouse_entered() -> void:
 
 func _on_hover() -> void:
 	var tw: Tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	# Highlight orange and display retro focus arrow ">"
+	# Highlight warm orange (#ff9a1f) with leading "> "
 	modulate = Color("ff9a1f")
 	text = "> " + base_text
 	# Hover offset 10px to right
@@ -28,7 +28,7 @@ func _on_blur() -> void:
 	if has_focus():
 		return
 	var tw: Tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	# Back to off-white/light gray
-	modulate = Color("eeeeee")
+	# Back to off-white (#e5edf5)
+	modulate = Color("e5edf5")
 	text = base_text
 	tw.tween_property(self, "position:x", origin_x, 0.15)
