@@ -337,6 +337,9 @@ animations = [{
 "speed": 8.0
 }]
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_detect"]
+radius = 64.0
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_feet"]
 size = Vector2(36, 16)
 
@@ -362,3 +365,17 @@ offset = Vector2(0, -20)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -6)
 shape = SubResource("RectangleShape2D_feet")
+
+[node name="InteractionRay" type="RayCast2D" parent="."]
+target_position = Vector2(0, 54)
+collision_mask = 4
+collide_with_areas = true
+collide_with_bodies = false
+
+[node name="InteractionDetector" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionDetector"]
+position = Vector2(0, -10)
+shape = SubResource("CircleShape2D_detect")

@@ -1,7 +1,9 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/game.gd" id="1_game_scr"]
 [ext_resource type="PackedScene" path="res://scenes/characters/tariq.tscn" id="2_tariq_scn"]
+[ext_resource type="PackedScene" path="res://scenes/characters/base_npc.tscn" id="3_npc_scn"]
+[ext_resource type="Texture2D" path="res://assets/characters/tariq_portrait_256.png" id="4_portrait_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hwall"]
 size = Vector2(1440, 30)
@@ -169,6 +171,12 @@ vertical_alignment = 1
 position = Vector2(0, -12)
 shape = SubResource("RectangleShape2D_crate")
 
+[node name="CrewOfficerNPC" parent="World" instance=ExtResource("3_npc_scn")]
+position = Vector2(800, 540)
+character_name = "CREW OFFICER"
+portrait = ExtResource("4_portrait_tex")
+dialogue_lines = PackedStringArray("Keep your voice down, Tariq.", "The patrol boat is circling starboard.", "Search the communication deck for the encrypted cipher.")
+
 [node name="Tariq" parent="World" instance=ExtResource("2_tariq_scn")]
 y_sort_enabled = true
 position = Vector2(960, 540)
@@ -207,4 +215,4 @@ theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 20
-text = "[W / A / S / D  or  ARROWS] Move 4 Directions   •   [SPACE] Jump   •   [CTRL / C] Crouch & Sneak   •   [ESC] Return to Menu"
+text = "[W / A / S / D] Move   •   [SHIFT] Sprint   •   [CTRL / C] Sneak   •   [SPACE] Jump   •   [E] Talk to NPC   •   [ESC] Menu"

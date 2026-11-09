@@ -1,36 +1,69 @@
-extends CharacterBody2D
-## Tariq — top-down (Stardew-style) deck controller with a pseudo-Z jump.
-## The body's origin sits at Tariq's boots so a Y-sorted parent layers him
-## correctly against deck props. Only the AnimatedSprite2D is lifted on jump.
+class_name Player
+extends BaseCharacter
+## Tariq — Player controller inheriting BaseCharacter.
+## Implements top-down movement with 4-direction support,
+## sprinting, sneak/crouching, pseudo-Z jumping, and generous proximity-based NPC interaction.
 
-enum State { IDLE, WALK, CROUCH, JUMP }
+enum State { IDLE, WALK, SPRINT, CROUCH, JUMP }
 
+const SPRINT_SPEED: float = 270.0
 const WALK_SPEED: float = 180.0
 const CROUCH_SPEED: float = 80.0
 const ACCEL: float = 1400.0
 const FRICTION: float = 1800.0
 
-const JUMP_VELOCITY: float = 285.0  # initial upward pseudo-Z speed (px/s) -> ~45 px apex
+const JUMP_VELOCITY: float = 285.0
 const Z_GRAVITY: float = 900.0
 const BASE_VISUAL_Y: float = 0.0
 
 var current_state: State = State.IDLE
-var last_facing_dir: Vector2 = Vector2.DOWN
 var z_pos: float = 0.0
 var z_velocity: float = 0.0
 
-@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var shadow: Node2D = $Shadow
+var _nearby_interactables: Array[Area2D] = []
+var interaction_cooldown: float = 0.0
+
+@onready var interaction_ray: RayCast2D = $InteractionRay if has_node("InteractionRay") else null
+@onready var interaction_detector: Area2D = $InteractionDetector if has_node("InteractionDetector") else null
 
 func _ready() -> void:
+	super._ready()
 	_ensure_input_actions()
+	_update_interaction_ray_direction()
 	_update_visuals()
 
-func _physics_process(delta: float) -> void:
+	# Connect proximity interaction zone
+	if interaction_detector:
+		interaction_detector.area_entered.connect(_on_interaction_area_entered)
+		interaction_detector.area_exited.connect(_on_interaction_area_exited)
+
+	var dl = get_node_or_null("/root/DialogueLayer")
+	if dl:
+		dl.dialogue_finished.connect(_refresh_nearby_prompts)
+
+func _character_process(delta: float) -> void:
+	if interaction_cooldown > 0.0:
+		interaction_cooldown -= delta
+
+	# If dialogue is currently open, freeze movement input & prime cooldown
+	var dl = get_node_or_null("/root/DialogueLayer")
+	if dl and dl.is_dialogue_open:
+		interaction_cooldown = 0.35
+		velocity = velocity.move_toward(Vector2.ZERO, FRICTION * delta)
+		move_and_slide()
+		play_locomotion(false)
+		return
+
+	# Handle interaction trigger (guarded by cooldown so closing keypress never re-opens)
+	if interaction_cooldown <= 0.0 and Input.is_action_just_pressed("interact"):
+		interaction_cooldown = 0.35
+		_try_interact()
+
 	var input_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	var wants_crouch := Input.is_action_pressed("crouch")
+	var wants_sprint := Input.is_action_pressed("sprint")
 
-	# --- State transitions ---
+	# --- State Transitions ---
 	if current_state == State.JUMP:
 		z_velocity -= Z_GRAVITY * delta
 		z_pos += z_velocity * delta
@@ -38,66 +71,120 @@ func _physics_process(delta: float) -> void:
 			z_pos = 0.0
 			z_velocity = 0.0
 			current_state = State.IDLE
-	elif Input.is_action_just_pressed("jump"):
+	elif Input.is_action_just_pressed("jump") and current_state != State.CROUCH:
 		current_state = State.JUMP
 		z_velocity = JUMP_VELOCITY
-		sprite.frame = 0
+		if sprite:
+			sprite.frame = 0
 	elif wants_crouch:
 		current_state = State.CROUCH
+	elif input_dir != Vector2.ZERO:
+		current_state = State.SPRINT if wants_sprint else State.WALK
 	else:
-		current_state = State.WALK if input_dir != Vector2.ZERO else State.IDLE
+		current_state = State.IDLE
 
-	# --- Horizontal (deck-plane) movement ---
-	var max_speed := CROUCH_SPEED if current_state == State.CROUCH else WALK_SPEED
+	# --- Target Speed & Acceleration ---
+	var target_speed := WALK_SPEED
+	match current_state:
+		State.CROUCH:
+			target_speed = CROUCH_SPEED
+		State.SPRINT:
+			target_speed = SPRINT_SPEED
+		State.WALK:
+			target_speed = WALK_SPEED
+
 	if input_dir != Vector2.ZERO:
-		velocity = velocity.move_toward(input_dir * max_speed, ACCEL * delta)
-		last_facing_dir = _to_cardinal(input_dir)
+		velocity = velocity.move_toward(input_dir * target_speed, ACCEL * delta)
+		var cardinal := _to_cardinal(input_dir)
+		if cardinal != last_facing_dir:
+			last_facing_dir = cardinal
+			_update_interaction_ray_direction()
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, FRICTION * delta)
 
 	move_and_slide()
 	_update_visuals()
 
-# Inside _update_visuals() on your script, map back to standard Stardew direction cycles
-func _update_visuals() -> void:
-	# Keep pseudo-Z visual jump lifting
-	$AnimatedSprite2D.position.y = BASE_VISUAL_Y - z_pos
+func _update_interaction_ray_direction() -> void:
+	if interaction_ray:
+		interaction_ray.target_position = last_facing_dir * 60.0
 
-	# Drop/grow shadows
+func _on_interaction_area_entered(area: Area2D) -> void:
+	if area not in _nearby_interactables:
+		_nearby_interactables.append(area)
+		var target = area.get_parent()
+		if target and target.has_method("set_prompt_visible"):
+			target.set_prompt_visible(true)
+
+func _on_interaction_area_exited(area: Area2D) -> void:
+	if area in _nearby_interactables:
+		_nearby_interactables.erase(area)
+		var target = area.get_parent()
+		if target and target.has_method("set_prompt_visible"):
+			target.set_prompt_visible(false)
+
+func _refresh_nearby_prompts() -> void:
+	for area in _nearby_interactables:
+		if is_instance_valid(area):
+			var target = area.get_parent()
+			if target and target.has_method("set_prompt_visible"):
+				target.set_prompt_visible(true)
+
+func _try_interact() -> void:
+	# 1. Check nearby proximity targets first (easiest & smoothest interaction)
+	_nearby_interactables = _nearby_interactables.filter(func(a): return is_instance_valid(a))
+	if not _nearby_interactables.is_empty():
+		var best_area: Area2D = null
+		var best_dist: float = INF
+		for area in _nearby_interactables:
+			var d := global_position.distance_squared_to(area.global_position)
+			if d < best_dist:
+				best_dist = d
+				best_area = area
+		if best_area:
+			var target = best_area.get_parent()
+			if target and target.has_method("interact"):
+				target.interact(self)
+				return
+			elif best_area.has_method("interact"):
+				best_area.interact(self)
+				return
+
+	# 2. Fallback to directional RayCast2D
+	if interaction_ray and interaction_ray.is_colliding():
+		var collider = interaction_ray.get_collider()
+		if collider:
+			var target = collider.get_parent() if collider is Area2D else collider
+			if target and target.has_method("interact"):
+				target.interact(self)
+			elif collider.has_method("interact"):
+				collider.interact(self)
+
+func _update_visuals() -> void:
+	if not sprite:
+		return
+
+	# Vertical pseudo-Z lift
+	sprite.position.y = BASE_VISUAL_Y - z_pos
+
+	# Dynamic shadow scaling with height
 	if shadow:
-		var s = clamp(1.0 - (z_pos / 45.0) * 0.4, 0.6, 1.0)
+		var s = clampf(1.0 - (z_pos / 45.0) * 0.4, 0.6, 1.0)
 		shadow.scale = Vector2(s, s)
 
-	# Calculate animation direction
-	var dir_suffix := "down"
-	if last_facing_dir == Vector2.UP:
-		$AnimatedSprite2D.flip_h = false
-		dir_suffix = "up"
-	elif last_facing_dir == Vector2.DOWN:
-		$AnimatedSprite2D.flip_h = false
-		dir_suffix = "down"
-	else:
-		$AnimatedSprite2D.flip_h = (last_facing_dir == Vector2.LEFT)
-		dir_suffix = "side"
+	var moving := velocity.length() > 5.0
+	match current_state:
+		State.JUMP:
+			play_directional_anim("jump")
+		State.CROUCH:
+			play_directional_anim("crouch_walk" if moving else "crouch_idle")
+		State.SPRINT:
+			play_directional_anim("walk")
+		State.WALK:
+			play_directional_anim("walk")
+		State.IDLE:
+			play_directional_anim("idle")
 
-	# Play states
-	if current_state == State.JUMP:
-		$AnimatedSprite2D.play("jump_" + dir_suffix)
-	elif current_state == State.CROUCH:
-		var moving = velocity.length() > 2.0
-		$AnimatedSprite2D.play("crouch_walk_" + dir_suffix if moving else "crouch_idle_" + dir_suffix)
-	else:
-		var moving = velocity.length() > 2.0
-		$AnimatedSprite2D.play("walk_" + dir_suffix if moving else "idle_" + dir_suffix)
-
-## Snap an analog/diagonal vector to the dominant cardinal direction.
-func _to_cardinal(v: Vector2) -> Vector2:
-	if absf(v.x) > absf(v.y):
-		return Vector2.RIGHT if v.x > 0.0 else Vector2.LEFT
-	return Vector2.DOWN if v.y > 0.0 else Vector2.UP
-
-## Registers WASD/arrows, Space (jump) and Ctrl/C (crouch) if the project
-## doesn't define these actions yet, keeping the scene drop-in ready.
 func _ensure_input_actions() -> void:
 	var bindings := {
 		"move_left": [KEY_A, KEY_LEFT],
@@ -106,13 +193,19 @@ func _ensure_input_actions() -> void:
 		"move_down": [KEY_S, KEY_DOWN],
 		"jump": [KEY_SPACE],
 		"crouch": [KEY_CTRL, KEY_C],
+		"sprint": [KEY_SHIFT],
+		"interact": [KEY_E, KEY_F, KEY_ENTER],
 	}
 	for action in bindings:
-		if InputMap.has_action(action):
-			continue
-		InputMap.add_action(action)
+		if not InputMap.has_action(action):
+			InputMap.add_action(action)
 		for key in bindings[action]:
-			var ev := InputEventKey.new()
-			ev.physical_keycode = key
-			InputMap.action_add_event(action, ev)
-
+			var already_bound := false
+			for ev in InputMap.action_get_events(action):
+				if ev is InputEventKey and ev.physical_keycode == key:
+					already_bound = true
+					break
+			if not already_bound:
+				var ev := InputEventKey.new()
+				ev.physical_keycode = key
+				InputMap.action_add_event(action, ev)
