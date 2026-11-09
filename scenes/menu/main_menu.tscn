@@ -385,6 +385,149 @@ text = "> BACK"
 flat = true
 alignment = 0
 
+[node name="CreditsRack" type="Control" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack"]
+visible = false
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(340, 180)
+layout_mode = 2
+offset_right = 340.0
+offset_bottom = 180.0
+
+[node name="ClipWindow" type="Control" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/CreditsRack"]
+clip_contents = true
+custom_minimum_size = Vector2(340, 140)
+layout_mode = 1
+offset_right = 340.0
+offset_bottom = 140.0
+
+[node name="CreditsList" type="VBoxContainer" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/CreditsRack/ClipWindow"]
+custom_minimum_size = Vector2(340, 0)
+layout_mode = 0
+offset_top = 140.0
+offset_right = 340.0
+offset_bottom = 140.0
+theme_override_constants/separation = 4
+
+[node name="Role1" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/CreditsRack/ClipWindow/CreditsList"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 24
+text = "CANARIA CODE 51"
+
+[node name="Spacer1" type="Control" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/CreditsRack/ClipWindow/CreditsList"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="Role2" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/CreditsRack/ClipWindow/CreditsList"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 22
+text = "DIRECTOR & CODE"
+
+[node name="Name2" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/CreditsRack/ClipWindow/CreditsList"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 24
+text = "MOHAMED ABDOU"
+
+[node name="Spacer2" type="Control" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/CreditsRack/ClipWindow/CreditsList"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="Role3" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/CreditsRack/ClipWindow/CreditsList"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 22
+text = "ENGINE & FRAMEWORK"
+
+[node name="Name3" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/CreditsRack/ClipWindow/CreditsList"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 24
+text = "GODOT 4.3"
+
+[node name="Spacer3" type="Control" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/CreditsRack/ClipWindow/CreditsList"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="Role4" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/CreditsRack/ClipWindow/CreditsList"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 22
+text = "SPECIAL THANKS"
+
+[node name="Name4" type="Label" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/CreditsRack/ClipWindow/CreditsList"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 24
+text = "YOU FOR PLAYING"
+
+[node name="CreditsBackBtn" type="Button" parent="MenuUI/MarginContainer/VBoxContainer/MenuRack/CreditsRack"]
+layout_mode = 0
+offset_top = 148.0
+offset_right = 160.0
+offset_bottom = 192.0
+focus_neighbor_top = NodePath(".")
+focus_neighbor_bottom = NodePath(".")
+focus_neighbor_left = NodePath(".")
+focus_neighbor_right = NodePath(".")
+focus_next = NodePath(".")
+focus_previous = NodePath(".")
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_focus_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_hover_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxEmpty_ghost")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_ghost")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_ghost")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_ghost")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_ghost")
+text = "> BACK"
+flat = true
+alignment = 0
+
 [node name="FadeOverlay" type="ColorRect" parent="MenuUI"]
 unique_name_in_owner = true
 anchors_preset = 15

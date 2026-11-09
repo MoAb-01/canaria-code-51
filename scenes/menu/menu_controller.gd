@@ -27,6 +27,18 @@ const TOTAL_SETTINGS_ROWS: int = 6 # 0:Master, 1:Music, 2:SFX, 3:Clicks, 4:Displ
 @onready var display_val: Label = $SettingsRack/DisplayRow/ValueLabel
 @onready var back_btn: Button = $SettingsRack/BackBtn
 
+# --- CREDITS CONTROLLER ADDITIONS ---
+@export var credits_scroll_speed: float = 22.0
+@export var fast_scroll_multiplier: float = 3.5
+
+@onready var credits_rack: Control = $CreditsRack
+@onready var clip_window: Control = $CreditsRack/ClipWindow
+@onready var credits_list: VBoxContainer = $CreditsRack/ClipWindow/CreditsList
+@onready var credits_back_btn: Button = $CreditsRack/CreditsBackBtn
+
+var is_credits_active: bool = false
+var credits_y: float = 140.0
+
 # Optional AudioStreamPlayer for menu clicks
 @export var click_player: AudioStreamPlayer
 @export var hover_player: AudioStreamPlayer
@@ -51,7 +63,14 @@ func _ready() -> void:
 	$MainButtons/OptionsBtn.pressed.connect(open_settings)
 	$MainButtons/PlayBtn.pressed.connect(_on_play_pressed)
 	$MainButtons/QuitBtn.pressed.connect(func(): get_tree().quit())
+	if has_node("MainButtons/CreditsBtn"):
+		$MainButtons/CreditsBtn.pressed.connect(open_credits)
 	back_btn.pressed.connect(close_settings)
+	credits_back_btn.pressed.connect(close_credits)
+	credits_back_btn.mouse_entered.connect(func():
+		if credits_rack.visible:
+			play_ui_blip()
+	)
 
 	# 4. Connect mouse hover and click interactions on settings rows
 	var rows = [
@@ -140,8 +159,76 @@ func close_settings() -> void:
 	settings_rack.visible = false
 	$MainButtons/OptionsBtn.grab_focus()
 
+func open_credits() -> void:
+	play_ui_blip()
+	is_credits_active = true
+	
+	# Reset scroll position so text starts just below the visible area
+	credits_y = clip_window.size.y
+	credits_list.position.y = credits_y
+
+	# Slide MainButtons out to the left
+	var tw = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tw.tween_property(main_buttons, "position:x", -180.0, 0.14)
+	tw.tween_property(main_buttons, "modulate:a", 0.0, 0.14)
+
+	# Slide CreditsRack in from the right
+	credits_rack.visible = true
+	credits_rack.position.x = 180.0
+	credits_rack.modulate.a = 0.0
+	tw.tween_property(credits_rack, "position:x", 0.0, 0.18)
+	tw.tween_property(credits_rack, "modulate:a", 1.0, 0.18)
+
+	await tw.finished
+	main_buttons.visible = false
+	credits_back_btn.grab_focus()
+
+func close_credits() -> void:
+	play_ui_blip()
+	is_credits_active = false
+
+	# Slide CreditsRack out to the right
+	var tw = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tw.tween_property(credits_rack, "position:x", 180.0, 0.14)
+	tw.tween_property(credits_rack, "modulate:a", 0.0, 0.14)
+
+	# Slide MainButtons back in
+	main_buttons.visible = true
+	tw.tween_property(main_buttons, "position:x", 0.0, 0.18)
+	tw.tween_property(main_buttons, "modulate:a", 1.0, 0.18)
+
+	await tw.finished
+	credits_rack.visible = false
+	$MainButtons/CreditsBtn.grab_focus()
+
+func _process(delta: float) -> void:
+	if not is_credits_active:
+		return
+
+	# Speed controls: holding down/S accelerates, holding up/W rewinds
+	var speed = credits_scroll_speed
+	if Input.is_action_pressed("ui_down"):
+		speed *= fast_scroll_multiplier
+	elif Input.is_action_pressed("ui_up"):
+		speed = -credits_scroll_speed * 1.5
+
+	# Scroll upward
+	credits_y -= speed * delta
+	credits_list.position.y = credits_y
+
+	# Loop seamlessly once all credits exit the top
+	var total_height = maxf(credits_list.size.y, credits_list.get_minimum_size().y)
+	if total_height > 0.0 and credits_y < -total_height:
+		credits_y = clip_window.size.y
+
 # Input Handling for Settings Navigation (Keyboard / Controller)
 func _unhandled_input(event: InputEvent) -> void:
+	if is_credits_active:
+		if event.is_action_pressed("ui_cancel"):
+			close_credits()
+			get_viewport().set_input_as_handled()
+		return
+
 	if not settings_rack.visible:
 		return
 
