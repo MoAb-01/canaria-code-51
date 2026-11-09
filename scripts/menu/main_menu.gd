@@ -3,7 +3,7 @@ extends Control
 const SFX_HOVER: AudioStream = preload("res://assets/audio/ui_hover.wav")
 const SFX_CLICK: AudioStream = preload("res://assets/audio/ui_click.wav")
 
-@onready var start_button: Button = %StartButton
+@onready var play_button: Button = %PlayButton
 @onready var options_button: Button = %OptionsButton
 @onready var credits_button: Button = %CreditsButton
 @onready var quit_button: Button = %QuitButton
@@ -15,7 +15,7 @@ const SFX_CLICK: AudioStream = preload("res://assets/audio/ui_click.wav")
 @onready var close_options_button: Button = %CloseOptionsButton
 @onready var close_credits_button: Button = %CloseCreditsButton
 
-@onready var fade_overlay: ColorRect = $FadeOverlay
+@onready var fade_overlay: ColorRect = %FadeOverlay
 @onready var ambient_audio: AudioStreamPlayer = $AmbientAudio
 @onready var sfx_player: AudioStreamPlayer = $SFXPlayer
 
@@ -30,15 +30,16 @@ func _ready() -> void:
 		
 	# Setup all interactive buttons with audio feedback
 	var all_buttons: Array[Button] = [
-		start_button, options_button, credits_button, quit_button,
+		play_button, options_button, credits_button, quit_button,
 		close_options_button, close_credits_button
 	]
 	for btn in all_buttons:
 		btn.mouse_entered.connect(_play_hover_sfx)
+		btn.focus_entered.connect(_play_hover_sfx)
 		btn.pressed.connect(_play_click_sfx)
 		
 	# Connect button actions
-	start_button.pressed.connect(_on_start_pressed)
+	play_button.pressed.connect(_on_start_pressed)
 	options_button.pressed.connect(_on_options_pressed)
 	credits_button.pressed.connect(_on_credits_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
@@ -51,6 +52,9 @@ func _ready() -> void:
 	fullscreen_check.toggled.connect(_on_fullscreen_toggled)
 	
 	fullscreen_check.button_pressed = (DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN or DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+	
+	# Focus PLAY button initially so it highlights in orange with ">"
+	play_button.call_deferred("grab_focus")
 
 func _play_hover_sfx() -> void:
 	if sfx_player:

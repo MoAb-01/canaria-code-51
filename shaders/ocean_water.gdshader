@@ -1,33 +1,29 @@
 shader_type canvas_item;
 
-uniform float wave_speed : hint_range(0.0, 10.0) = 2.0;
-uniform float wave_freq : hint_range(0.0, 60.0) = 20.0;
-uniform float wave_amp : hint_range(0.0, 0.05) = 0.003;
-uniform float horizon_y : hint_range(0.0, 1.0) = 0.675;
+uniform vec4 abyss_color : source_color = vec4(0.05, 0.09, 0.16, 1.0);  // Dark Navy
+uniform vec4 mid_color : source_color = vec4(0.11, 0.20, 0.31, 1.0);    // Slate Blue
+uniform vec4 crest_color : source_color = vec4(0.24, 0.42, 0.54, 1.0);  // Mid-sea Foam
+uniform vec4 foam_color : source_color = vec4(0.85, 0.93, 0.96, 1.0);   // Dawn Highlight
+
+uniform float pixel_scale : hint_range(1.0, 8.0) = 4.0;                // Keeps it retro
+uniform float wave_speed : hint_range(0.1, 2.0) = 0.5;                 // Gentle side-roll
 
 void fragment() {
-    vec2 uv = UV;
+    // Force coordinates to lock strictly to a retro pixel grid
+    // (Fallback pixel size when attached to a textureless ColorRect where TEXTURE_PIXEL_SIZE is 1x1)
+    vec2 base_pixel_size = (TEXTURE_PIXEL_SIZE.x >= 0.5) ? vec2(1.0 / 1920.0, 1.0 / 360.0) : TEXTURE_PIXEL_SIZE;
+    vec2 grid_uv = floor(UV / (base_pixel_size * pixel_scale)) * (base_pixel_size * pixel_scale);
     
-    if (uv.y > horizon_y) {
-        // Exclude the tower structure on the far right (x > 0.82)
-        if (uv.x < 0.82 || uv.y > 0.95) {
-            float depth = (uv.y - horizon_y) / (1.0 - horizon_y);
-            
-            // Harmonic wave motion
-            float w1 = sin(TIME * wave_speed + uv.y * wave_freq + uv.x * 12.0);
-            float w2 = cos(TIME * (wave_speed * 0.8) + uv.y * (wave_freq * 0.5) - uv.x * 16.0);
-            
-            // Stepped displacement
-            float disp_x = floor((w1 * 0.65 + w2 * 0.35) * 6.0) / 6.0 * wave_amp * (0.3 + depth * 0.7);
-            float disp_y = floor(w1 * 4.0) / 4.0 * (wave_amp * 0.4) * (0.3 + depth * 0.7);
-            
-            vec2 sample_uv = uv + vec2(disp_x, disp_y);
-            
-            if (sample_uv.y > horizon_y && sample_uv.x < 0.84) {
-                uv = sample_uv;
-            }
-        }
-    }
+    // Create horizontal side-view rolling wave motion
+    float wave_offset_a = sin(grid_uv.x * 35.0 + TIME * wave_speed * 3.0) * 0.025;
+    float wave_offset_b = cos(grid_uv.x * 20.0 - TIME * wave_speed * 1.8) * 0.015;
+    float final_y = grid_uv.y + wave_offset_a + wave_offset_b;
     
-    COLOR = texture(TEXTURE, uv);
+    // Stepped 16-bit color banding (no gradient)
+    vec4 col = abyss_color;
+    if (final_y < 0.70) col = mid_color;
+    if (final_y < 0.38) col = crest_color;
+    if (final_y < 0.14) col = foam_color;
+    
+    COLOR = col;
 }
