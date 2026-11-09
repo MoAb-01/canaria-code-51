@@ -1,127 +1,210 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/game.gd" id="1_game_scr"]
-[ext_resource type="Script" path="res://scripts/ui/animated_ocean.gd" id="2_ocean_scr"]
-[ext_resource type="Texture2D" path="res://assets/textures/water_frames/water_00.png" id="3_water_init"]
-[ext_resource type="Texture2D" path="res://assets/textures/tower_foreground.png" id="4_tower_fg"]
-[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="5_player_scn"]
-[ext_resource type="AudioStream" path="res://assets/audio/teaser_ambient_16s.wav" id="6_amb_audio"]
+[ext_resource type="PackedScene" path="res://scenes/characters/tariq.tscn" id="2_tariq_scn"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_deck"]
-size = Vector2(1150, 40)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hwall"]
+size = Vector2(1440, 30)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_tower_plat"]
-size = Vector2(340, 24)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vwall"]
+size = Vector2(30, 840)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_sea_floor"]
-size = Vector2(1920, 40)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_crate"]
+size = Vector2(70, 30)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ladder"]
-size = Vector2(44, 460)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_water"]
-size = Vector2(1000, 320)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_crate"]
+bg_color = Color(0.25, 0.35, 0.45, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.4, 0.55, 0.7, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 6
 
 [node name="GameLevel" type="Node2D"]
+y_sort_enabled = true
 script = ExtResource("1_game_scr")
 
 [node name="BackgroundCanvas" type="CanvasLayer" parent="."]
-layer = -1
+layer = -10
 
-[node name="AnimatedBackground" type="TextureRect" parent="BackgroundCanvas"]
+[node name="DarkBackdrop" type="ColorRect" parent="BackgroundCanvas"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("3_water_init")
-expand_mode = 1
-script = ExtResource("2_ocean_scr")
-fps = 8.0
+color = Color(0.04, 0.05, 0.08, 1)
 
-[node name="Environment" type="Node2D" parent="."]
+[node name="DeckFloor" type="ColorRect" parent="BackgroundCanvas"]
+offset_left = 260.0
+offset_top = 140.0
+offset_right = 1660.0
+offset_bottom = 940.0
+color = Color(0.10, 0.13, 0.18, 1)
 
-[node name="StaticPlatforms" type="StaticBody2D" parent="Environment"]
+[node name="DeckGrid" type="ReferenceRect" parent="BackgroundCanvas/DeckFloor"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+border_color = Color(0.18, 0.24, 0.32, 0.8)
+border_width = 3.0
+editor_only = false
+
+[node name="DeckCenterMark" type="ReferenceRect" parent="BackgroundCanvas/DeckFloor"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -120.0
+offset_right = 200.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+border_color = Color(0.16, 0.22, 0.30, 0.5)
+border_width = 2.0
+editor_only = false
+
+[node name="BoundaryWalls" type="StaticBody2D" parent="."]
 collision_layer = 2
 collision_mask = 0
 
-[node name="CatwalkFloor" type="CollisionShape2D" parent="Environment/StaticPlatforms"]
-position = Vector2(1360, 995)
-shape = SubResource("RectangleShape2D_deck")
+[node name="WallTop" type="CollisionShape2D" parent="BoundaryWalls"]
+position = Vector2(960, 125)
+shape = SubResource("RectangleShape2D_hwall")
 
-[node name="TowerPlatform" type="CollisionShape2D" parent="Environment/StaticPlatforms"]
-position = Vector2(1750, 560)
-shape = SubResource("RectangleShape2D_tower_plat")
+[node name="WallBottom" type="CollisionShape2D" parent="BoundaryWalls"]
+position = Vector2(960, 955)
+shape = SubResource("RectangleShape2D_hwall")
 
-[node name="TowerRoof" type="CollisionShape2D" parent="Environment/StaticPlatforms"]
-position = Vector2(1780, 210)
-shape = SubResource("RectangleShape2D_tower_plat")
+[node name="WallLeft" type="CollisionShape2D" parent="BoundaryWalls"]
+position = Vector2(245, 540)
+shape = SubResource("RectangleShape2D_vwall")
 
-[node name="SeaFloor" type="CollisionShape2D" parent="Environment/StaticPlatforms"]
-position = Vector2(960, 1070)
-shape = SubResource("RectangleShape2D_sea_floor")
+[node name="WallRight" type="CollisionShape2D" parent="BoundaryWalls"]
+position = Vector2(1675, 540)
+shape = SubResource("RectangleShape2D_vwall")
 
-[node name="LeftWall" type="CollisionShape2D" parent="Environment/StaticPlatforms"]
-position = Vector2(-15, 540)
-shape = SubResource("RectangleShape2D_ladder")
+[node name="World" type="Node2D" parent="."]
+y_sort_enabled = true
 
-[node name="RightWall" type="CollisionShape2D" parent="Environment/StaticPlatforms"]
-position = Vector2(1935, 540)
-shape = SubResource("RectangleShape2D_ladder")
+[node name="TestCrate1" type="StaticBody2D" parent="World"]
+y_sort_enabled = true
+position = Vector2(680, 480)
+collision_layer = 2
+collision_mask = 0
 
-[node name="Ladder" type="Area2D" parent="Environment"]
-collision_layer = 0
-collision_mask = 1
+[node name="Shadow" type="Polygon2D" parent="World/TestCrate1"]
+color = Color(0, 0, 0, 0.3)
+polygon = PackedVector2Array(-42, -5, 42, -5, 46, 12, -46, 12)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Environment/Ladder"]
-position = Vector2(1670, 775)
-shape = SubResource("RectangleShape2D_ladder")
+[node name="Visual" type="Panel" parent="World/TestCrate1"]
+offset_left = -40.0
+offset_top = -70.0
+offset_right = 40.0
+offset_bottom = 0.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_crate")
 
-[node name="WaterZone" type="Area2D" parent="Environment"]
-collision_layer = 0
-collision_mask = 1
+[node name="Label" type="Label" parent="World/TestCrate1/Visual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 0.8)
+theme_override_font_sizes/font_size = 14
+text = "Y-SORT
+PROP"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Environment/WaterZone"]
-position = Vector2(400, 925)
-shape = SubResource("RectangleShape2D_water")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/TestCrate1"]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_crate")
 
-[node name="Player" parent="." instance=ExtResource("5_player_scn")]
-position = Vector2(1100, 940)
-z_index = 2
+[node name="TestCrate2" type="StaticBody2D" parent="World"]
+y_sort_enabled = true
+position = Vector2(1240, 620)
+collision_layer = 2
+collision_mask = 0
 
-[node name="Camera2D" type="Camera2D" parent="Player"]
-position = Vector2(0, -60)
-limit_left = 0
-limit_top = 0
-limit_right = 1920
-limit_bottom = 1080
-position_smoothing_enabled = true
-position_smoothing_speed = 6.0
+[node name="Shadow" type="Polygon2D" parent="World/TestCrate2"]
+color = Color(0, 0, 0, 0.3)
+polygon = PackedVector2Array(-42, -5, 42, -5, 46, 12, -46, 12)
 
-[node name="ForegroundRailing" type="Sprite2D" parent="."]
-z_index = 10
+[node name="Visual" type="Panel" parent="World/TestCrate2"]
+offset_left = -40.0
+offset_top = -70.0
+offset_right = 40.0
+offset_bottom = 0.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_crate")
+
+[node name="Label" type="Label" parent="World/TestCrate2/Visual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 0.8)
+theme_override_font_sizes/font_size = 14
+text = "Y-SORT
+PROP"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/TestCrate2"]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_crate")
+
+[node name="Tariq" parent="World" instance=ExtResource("2_tariq_scn")]
+y_sort_enabled = true
 position = Vector2(960, 540)
-texture = ExtResource("4_tower_fg")
 
 [node name="HUD" type="CanvasLayer" parent="."]
+layer = 10
 
 [node name="Margin" type="MarginContainer" parent="HUD"]
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 50.0
+offset_bottom = 100.0
 grow_horizontal = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 18
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 32
 
-[node name="Instructions" type="Label" parent="HUD/Margin"]
+[node name="VBox" type="VBoxContainer" parent="HUD/Margin"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.996, 0.827, 0.553, 0.9)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
-theme_override_constants/shadow_offset_x = 1
-theme_override_constants/shadow_offset_y = 1
-theme_override_font_sizes/font_size = 15
-text = "[A / D] Move   •   [SPACE] Jump / Swim   •   [W / S] Climb Tower Ladder   •   [ESC] Return to Menu"
+theme_override_constants/separation = 6
 
-[node name="AmbientAudio" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("6_amb_audio")
-autoplay = true
+[node name="Title" type="Label" parent="HUD/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 28
+text = "CANARIA CODE 51 — TARIQ TEST STAGE"
+
+[node name="Instructions" type="Label" parent="HUD/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 0.95)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "[W / A / S / D  or  ARROWS] Move 4 Directions   •   [SPACE] Jump   •   [CTRL / C] Crouch & Sneak   •   [ESC] Return to Menu"
