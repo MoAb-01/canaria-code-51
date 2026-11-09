@@ -104,7 +104,7 @@ shape = SubResource("RectangleShape2D_vwall")
 [node name="World" type="Node2D" parent="."]
 y_sort_enabled = true
 
-[node name="TestCrate1" type="StaticBody2D" parent="World"]
+[node name="TestCrate1" type="StaticBody2D" parent="World" groups=["pushable"]]
 y_sort_enabled = true
 position = Vector2(680, 480)
 collision_layer = 2
@@ -130,8 +130,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.7, 0.85, 1, 0.8)
 theme_override_font_sizes/font_size = 14
-text = "Y-SORT
-PROP"
+text = "PUSHABLE
+CRATE [E]"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -142,7 +142,7 @@ shape = SubResource("RectangleShape2D_crate")
 [node name="LightOccluder2D" type="LightOccluder2D" parent="World/TestCrate1"]
 occluder = SubResource("OccluderPolygon2D_crate")
 
-[node name="TestCrate2" type="StaticBody2D" parent="World"]
+[node name="TestCrate2" type="StaticBody2D" parent="World" groups=["pushable"]]
 y_sort_enabled = true
 position = Vector2(1240, 620)
 collision_layer = 2
@@ -168,8 +168,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.7, 0.85, 1, 0.8)
 theme_override_font_sizes/font_size = 14
-text = "Y-SORT
-PROP"
+text = "PUSHABLE
+CRATE [E]"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -224,4 +224,4 @@ theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 20
-text = "[W / A / S / D] Move   •   [F] Flashlight   •   [SHIFT] Sprint   •   [CTRL / C] Sneak   •   [SPACE] Jump   •   [E] Talk to NPC   •   [ESC] Menu"
+text = "[WASD] Move  •  [F] Flashlight  •  [LMB / J] Punch  •  [RMB / K] Defend  •  [E] Grab Crate / Talk  •  [CTRL] Sneak  •  [SPACE] Jump"
