@@ -1,0 +1,227 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://levels/test_deck/test_deck.gd" id="1_game_scr"]
+[ext_resource type="PackedScene" path="res://entities/player/tariq.tscn" id="2_tariq_scn"]
+[ext_resource type="PackedScene" path="res://entities/npc/base_npc.tscn" id="3_npc_scn"]
+[ext_resource type="Texture2D" path="res://assets/characters/tariq_portrait_256.png" id="4_portrait_tex"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hwall"]
+size = Vector2(1440, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vwall"]
+size = Vector2(30, 840)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_crate"]
+size = Vector2(70, 30)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_crate"]
+polygon = PackedVector2Array(-35, -27, 35, -27, 35, 0, -35, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_crate"]
+bg_color = Color(0.25, 0.35, 0.45, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.4, 0.55, 0.7, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 6
+
+[node name="GameLevel" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_game_scr")
+
+[node name="BackgroundCanvas" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="DarkBackdrop" type="ColorRect" parent="BackgroundCanvas"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.05, 0.08, 1)
+
+[node name="DeckFloor" type="ColorRect" parent="BackgroundCanvas"]
+offset_left = 260.0
+offset_top = 140.0
+offset_right = 1660.0
+offset_bottom = 940.0
+color = Color(0.10, 0.13, 0.18, 1)
+
+[node name="DeckGrid" type="ReferenceRect" parent="BackgroundCanvas/DeckFloor"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+border_color = Color(0.18, 0.24, 0.32, 0.8)
+border_width = 3.0
+editor_only = false
+
+[node name="DeckCenterMark" type="ReferenceRect" parent="BackgroundCanvas/DeckFloor"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -120.0
+offset_right = 200.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+border_color = Color(0.16, 0.22, 0.30, 0.5)
+border_width = 2.0
+editor_only = false
+
+[node name="BoundaryWalls" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+
+[node name="WallTop" type="CollisionShape2D" parent="BoundaryWalls"]
+position = Vector2(960, 125)
+shape = SubResource("RectangleShape2D_hwall")
+
+[node name="WallBottom" type="CollisionShape2D" parent="BoundaryWalls"]
+position = Vector2(960, 955)
+shape = SubResource("RectangleShape2D_hwall")
+
+[node name="WallLeft" type="CollisionShape2D" parent="BoundaryWalls"]
+position = Vector2(245, 540)
+shape = SubResource("RectangleShape2D_vwall")
+
+[node name="WallRight" type="CollisionShape2D" parent="BoundaryWalls"]
+position = Vector2(1675, 540)
+shape = SubResource("RectangleShape2D_vwall")
+
+[node name="World" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="TestCrate1" type="StaticBody2D" parent="World" groups=["pushable"]]
+y_sort_enabled = true
+position = Vector2(680, 480)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Shadow" type="Polygon2D" parent="World/TestCrate1"]
+color = Color(0, 0, 0, 0.3)
+polygon = PackedVector2Array(-42, -5, 42, -5, 46, 12, -46, 12)
+
+[node name="Visual" type="Panel" parent="World/TestCrate1"]
+offset_left = -40.0
+offset_top = -70.0
+offset_right = 40.0
+offset_bottom = 0.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_crate")
+
+[node name="Label" type="Label" parent="World/TestCrate1/Visual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 0.8)
+theme_override_font_sizes/font_size = 14
+text = "PUSHABLE
+CRATE [E]"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/TestCrate1"]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_crate")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="World/TestCrate1"]
+occluder = SubResource("OccluderPolygon2D_crate")
+
+[node name="TestCrate2" type="StaticBody2D" parent="World" groups=["pushable"]]
+y_sort_enabled = true
+position = Vector2(1240, 620)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Shadow" type="Polygon2D" parent="World/TestCrate2"]
+color = Color(0, 0, 0, 0.3)
+polygon = PackedVector2Array(-42, -5, 42, -5, 46, 12, -46, 12)
+
+[node name="Visual" type="Panel" parent="World/TestCrate2"]
+offset_left = -40.0
+offset_top = -70.0
+offset_right = 40.0
+offset_bottom = 0.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_crate")
+
+[node name="Label" type="Label" parent="World/TestCrate2/Visual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 0.8)
+theme_override_font_sizes/font_size = 14
+text = "PUSHABLE
+CRATE [E]"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/TestCrate2"]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_crate")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="World/TestCrate2"]
+occluder = SubResource("OccluderPolygon2D_crate")
+
+[node name="CrewOfficerNPC" parent="World" instance=ExtResource("3_npc_scn")]
+position = Vector2(800, 540)
+character_name = "CREW OFFICER"
+portrait = ExtResource("4_portrait_tex")
+dialogue_lines = PackedStringArray("Keep your voice down, Tariq.", "The patrol boat is circling starboard.", "Search the communication deck for the encrypted cipher.")
+
+[node name="Tariq" parent="World" instance=ExtResource("2_tariq_scn")]
+y_sort_enabled = true
+position = Vector2(960, 540)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Margin" type="MarginContainer" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 100.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 32
+
+[node name="VBox" type="VBoxContainer" parent="HUD/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="HUD/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 28
+text = "CANARIA CODE 51 — TARIQ TEST STAGE"
+
+[node name="Instructions" type="Label" parent="HUD/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 0.95)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "[WASD] Move  •  [F] Flashlight  •  [LMB / J] Punch  •  [RMB / K] Defend  •  [E] Grab Crate / Talk  •  [CTRL] Sneak  •  [SPACE] Jump"
