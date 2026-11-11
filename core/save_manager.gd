@@ -69,3 +69,4 @@ func apply_audio_bus_volume(bus_idx: int, vol_percent: int) -> void:
 func apply_display_mode() -> void:
 	var mode := DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN if is_fullscreen else DisplayServer.WINDOW_MODE_WINDOWED
 	DisplayServer.window_set_mode(mode)
+

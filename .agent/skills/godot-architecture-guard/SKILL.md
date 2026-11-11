@@ -86,3 +86,4 @@ Singletons must remain lightweight, strongly typed, and focused:
 - **Y-Sorting:** Enable `y_sort_enabled = true` on entities and environment layers to preserve natural depth.
 - **Pixel Snapping:** Round rendering coordinates or use integer coordinates for camera and sprites to prevent subpixel jitter.
 - **Lighting:** Use 2D PointLight2D with soft energy falloffs and shadow casting on designated obstacle layers.
+

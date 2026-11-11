@@ -74,3 +74,4 @@ func _to_cardinal(v: Vector2) -> Vector2:
 	if absf(v.x) > absf(v.y):
 		return Vector2.RIGHT if v.x > 0.0 else Vector2.LEFT
 	return Vector2.DOWN if v.y > 0.0 else Vector2.UP
+

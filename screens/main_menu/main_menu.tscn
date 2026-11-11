@@ -26,6 +26,7 @@ theme = ExtResource("1_theme")
 [node name="BackgroundLayers" type="Node2D" parent="."]
 
 [node name="Sky" type="TextureRect" parent="BackgroundLayers"]
+mouse_filter = 2
 offset_right = 1920.0
 offset_bottom = 1080.0
 texture = ExtResource("2_sky_tex")
@@ -97,6 +98,7 @@ layout_mode = 2
 theme_override_constants/separation = 18
 
 [node name="Logo" type="TextureRect" parent="MenuUI/MarginContainer/VBoxContainer"]
+mouse_filter = 2
 custom_minimum_size = Vector2(680, 246)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -105,6 +107,7 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="MenuRack" type="Control" parent="MenuUI/MarginContainer/VBoxContainer" node_paths=PackedStringArray("click_player")]
+mouse_filter = 1
 custom_minimum_size = Vector2(480, 320)
 layout_mode = 2
 script = ExtResource("8_ctrl_scr")

@@ -30,3 +30,4 @@ func set_focused(focused_state: bool) -> void:
 	var parent := get_parent()
 	if parent and parent.has_method("set_prompt_visible"):
 		parent.set_prompt_visible(focused_state)
+

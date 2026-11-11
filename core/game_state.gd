@@ -78,3 +78,4 @@ func _ensure_global_input_actions() -> void:
 		var joy_ev := InputEventJoypadButton.new()
 		joy_ev.button_index = JOY_BUTTON_DPAD_LEFT
 		InputMap.action_add_event("toggle_flashlight", joy_ev)
+

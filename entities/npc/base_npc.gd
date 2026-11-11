@@ -38,3 +38,4 @@ func interact(interactor: Node2D = null) -> void:
 		return
 
 	push_warning("[BaseNPC] DialogueLayer autoload not found for " + character_name)
+

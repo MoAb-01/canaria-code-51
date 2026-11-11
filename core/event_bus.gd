@@ -25,3 +25,4 @@ signal dialogue_finished()
 signal screen_change_requested(target_scene_path: String)
 signal settings_changed()
 signal fullscreen_toggled(is_fullscreen: bool)
+

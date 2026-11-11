@@ -51,3 +51,4 @@ func _play_click_sfx() -> void:
 	if click_audio:
 		click_audio.pitch_scale = randf_range(1.04, 1.08) if is_on else randf_range(0.94, 0.98)
 		click_audio.play()
+

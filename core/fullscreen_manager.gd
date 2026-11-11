@@ -57,3 +57,4 @@ func _save_display_mode(enabled: bool) -> void:
 	config.set_value("display", "fullscreen", enabled)
 	config.set_value("preferences", "fullscreen", enabled)
 	config.save("user://settings.cfg")
+
