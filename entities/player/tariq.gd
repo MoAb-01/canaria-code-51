@@ -1,5 +1,5 @@
 class_name Player
-extends BaseCharacter
+extends "res://entities/base_character.gd"
 ## Unified Player Controller (Tariq).
 ## Coordinates Locomotion, Stealth Crouch, Pseudo-Z Jump, Combat, Cargo Push/Pull, and Flashlight.
 
@@ -179,7 +179,7 @@ func _update_z_physics(delta: float) -> void:
 	if current_state == State.JUMP:
 		z_velocity -= pseudo_gravity * delta
 		z_pos += z_velocity * delta
-		if z_pos <= 0.0:
+		if z_velocity <= 0.0 and z_pos <= 0.0:
 			z_pos = 0.0
 			z_velocity = 0.0
 			var crouching := Input.is_action_pressed("stealth_crouch") or Input.is_action_pressed("crouch")
@@ -223,9 +223,15 @@ func _update_visuals() -> void:
 
 func _play_combat_anim(anim_prefix: String) -> void:
 	velocity = Vector2.ZERO
-	sprite.play(anim_prefix + "_" + _get_dir_suffix())
-	await sprite.animation_finished
-	if current_state == State.COMBAT: current_state = State.NORMAL
+	var anim_name := anim_prefix + "_" + _get_dir_suffix()
+	if sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation(anim_name):
+		sprite.play(anim_name)
+		await sprite.animation_finished
+	elif sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation(anim_prefix):
+		sprite.play(anim_prefix)
+		await sprite.animation_finished
+	if current_state == State.COMBAT:
+		current_state = State.NORMAL
 
 func _start_grab(target: Node2D) -> void:
 	_release_grab()

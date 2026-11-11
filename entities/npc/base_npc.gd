@@ -1,5 +1,5 @@
 class_name BaseNPC
-extends BaseCharacter
+extends "res://entities/base_character.gd"
 ## BaseNPC — Reusable NPC controller extending BaseCharacter.
 ## Holds dialogue lines, character portraits, and interaction triggers.
 
