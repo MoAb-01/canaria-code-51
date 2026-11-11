@@ -1,7 +1,7 @@
 class_name Player
 extends "res://entities/base_character.gd"
 ## Unified Player Controller (Tariq).
-## Coordinates Locomotion, Stealth Crouch, Pseudo-Z Jump, Combat, Cargo Push/Pull, and Flashlight.
+## Handles Locomotion, Stealth Crouch, Pseudo-Z Jump, Combat, Cargo Push/Pull, and Flashlight.
 
 # Motion Tuning
 @export var walk_speed: float = 180.0
@@ -25,6 +25,8 @@ var current_state: State = State.NORMAL
 var grabbed_object: Node2D = null
 var _grab_offset: Vector2 = Vector2.ZERO
 var interaction_cooldown: float = 0.0
+var flashlight_on: bool = false
+var _nearby_interactables: Array[Area2D] = []
 
 # Sub-Node References
 @onready var interaction_ray: RayCast2D = $InteractionRay if has_node("InteractionRay") else null
@@ -34,9 +36,6 @@ var interaction_cooldown: float = 0.0
 @onready var flashlight_spill: PointLight2D = $FlashlightPivot/FlashlightSpill if has_node("FlashlightPivot/FlashlightSpill") else null
 @onready var flashlight_audio: AudioStreamPlayer2D = $FlashlightAudio if has_node("FlashlightAudio") else null
 
-var flashlight_on: bool = false
-var _nearby_interactables: Array[Area2D] = []
-
 const BASE_VISUAL_Y: float = -14.0
 const RAY_LENGTH: float = 54.0
 
@@ -44,6 +43,7 @@ func _ready() -> void:
 	super._ready()
 	if interaction_ray:
 		interaction_ray.target_position = last_facing_dir * RAY_LENGTH
+		direction_changed.connect(func(dir): interaction_ray.target_position = dir * RAY_LENGTH)
 	_update_light_visibility()
 	_update_visuals()
 
@@ -93,14 +93,12 @@ func _handle_actions() -> void:
 	if current_state == State.JUMP:
 		return
 
-	# Flashlight Switch (F)
 	if has_flashlight and Input.is_action_just_pressed("toggle_flashlight"):
 		if current_state in [State.COMBAT, State.GRAB]:
 			_release_grab()
 			current_state = State.NORMAL
 		_toggle_flashlight()
 
-	# Interact / Grab Cargo (E)
 	if interaction_cooldown <= 0.0 and Input.is_action_just_pressed("interact"):
 		if current_state == State.GRAB:
 			_release_grab()
@@ -110,8 +108,7 @@ func _handle_actions() -> void:
 		if pushable:
 			_start_grab(pushable)
 			interaction_cooldown = 0.2
-			if flashlight_on:
-				_toggle_flashlight()
+			if flashlight_on: _toggle_flashlight()
 			return
 		else:
 			interaction_cooldown = 0.35
@@ -119,11 +116,9 @@ func _handle_actions() -> void:
 			return
 
 	if current_state == State.GRAB:
-		if not is_instance_valid(grabbed_object):
-			_release_grab()
+		if not is_instance_valid(grabbed_object): _release_grab()
 		return
 
-	# Combat Melee / Defend
 	if Input.is_action_just_pressed("attack") and current_state != State.COMBAT:
 		current_state = State.COMBAT
 		if flashlight_on: _toggle_flashlight()
@@ -138,7 +133,6 @@ func _handle_actions() -> void:
 	if current_state == State.COMBAT:
 		return
 
-	# Jump Action (Space)
 	if Input.is_action_just_pressed("jump") and current_state != State.CROUCH:
 		current_state = State.JUMP
 		z_velocity = jump_impulse
@@ -147,7 +141,6 @@ func _handle_actions() -> void:
 		_update_light_visibility()
 		return
 
-	# Crouch Check
 	var crouching := Input.is_action_pressed("stealth_crouch") or Input.is_action_pressed("crouch")
 	current_state = State.CROUCH if crouching else State.NORMAL
 
@@ -166,8 +159,10 @@ func _apply_movement(delta: float) -> void:
 
 	if input_vec != Vector2.ZERO and current_state != State.COMBAT:
 		if current_state != State.GRAB:
-			last_facing_dir = Vector2.RIGHT if input_vec.x > 0.0 else (Vector2.LEFT if input_vec.x < 0.0 else (Vector2.DOWN if input_vec.y > 0.0 else Vector2.UP))
-			if interaction_ray: interaction_ray.target_position = last_facing_dir * RAY_LENGTH
+			if absf(input_vec.x) > absf(input_vec.y):
+				last_facing_dir = Vector2.RIGHT if input_vec.x > 0.0 else Vector2.LEFT
+			else:
+				last_facing_dir = Vector2.DOWN if input_vec.y > 0.0 else Vector2.UP
 		else:
 			input_vec = Vector2(signf(input_vec.x), 0.0) if last_facing_dir.x != 0.0 else Vector2(0.0, signf(input_vec.y))
 		velocity = velocity.move_toward(input_vec * target_speed, accel_rate * delta)
@@ -186,6 +181,17 @@ func _update_z_physics(delta: float) -> void:
 			current_state = State.CROUCH if crouching else State.NORMAL
 			set_collision_mask_value(3, true)
 			_update_light_visibility()
+
+func _get_dir_suffix() -> String:
+	if last_facing_dir == Vector2.UP:
+		if sprite: sprite.flip_h = false
+		return "up"
+	elif last_facing_dir == Vector2.DOWN:
+		if sprite: sprite.flip_h = false
+		return "down"
+	if sprite:
+		sprite.flip_h = (last_facing_dir == Vector2.LEFT)
+	return "side"
 
 func _update_visuals() -> void:
 	_update_light_orientation()
@@ -278,15 +284,9 @@ func _update_light_orientation() -> void:
 
 func _interact_with_target() -> void:
 	_nearby_interactables = _nearby_interactables.filter(func(a): return is_instance_valid(a))
-	if not _nearby_interactables.is_empty():
-		var best: Area2D = null
-		var min_d := INF
-		for a in _nearby_interactables:
-			var d := global_position.distance_squared_to(a.global_position)
-			if d < min_d: min_d = d; best = a
-		if best:
-			var target = best.get_parent() if best.get_parent().has_method("interact") else best
-			if target.has_method("interact"): target.interact(self); return
+	for a in _nearby_interactables:
+		var target = a.get_parent() if a.get_parent().has_method("interact") else a
+		if target.has_method("interact"): target.interact(self); return
 
 	if interaction_ray and interaction_ray.is_colliding():
 		var col = interaction_ray.get_collider()

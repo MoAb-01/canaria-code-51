@@ -623,10 +623,16 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("Atlas_exp_r1_c4")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_exp_r1_c6")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_exp_r1_c7")
 }],
 "loop": false,
 "name": &"defend_side",
-"speed": 7.0
+"speed": 8.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -642,26 +648,35 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("Atlas_exp_r2_c0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_exp_r2_c3")
 }],
 "loop": true,
 "name": &"grab_still_down",
-"speed": 5.0
+"speed": 3.0
 }, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("Atlas_exp_r2_c1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_exp_r2_c4")
 }],
 "loop": true,
 "name": &"grab_still_side",
-"speed": 5.0
+"speed": 3.0
 }, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("Atlas_exp_r2_c2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_exp_r2_c5")
 }],
 "loop": true,
 "name": &"grab_still_up",
-"speed": 5.0
+"speed": 3.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -715,6 +730,15 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("Atlas_exp_r4_c0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_exp_r4_c1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_exp_r4_c2")
+}, {
+"duration": 1.0,
 "texture": SubResource("Atlas_exp_r4_c3")
 }, {
 "duration": 1.0,
@@ -725,7 +749,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"pull_side",
-"speed": 7.0
+"speed": 8.0
 }, {
 "frames": [{
 "duration": 1.0,

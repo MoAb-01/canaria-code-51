@@ -60,9 +60,13 @@ func play_locomotion(is_moving: bool) -> void:
 
 func get_direction_suffix() -> String:
 	if last_facing_dir == Vector2.UP:
+		if sprite: sprite.flip_h = false
 		return "up"
 	elif last_facing_dir == Vector2.DOWN:
+		if sprite: sprite.flip_h = false
 		return "down"
+	if sprite:
+		sprite.flip_h = (last_facing_dir == Vector2.LEFT)
 	return "side"
 
 func _get_dir_suffix() -> String:
