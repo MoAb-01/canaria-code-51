@@ -1,58 +1,47 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://ui/save_indicator/save_indicator.gd" id="1_save_ind_scr"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_box"]
-bg_color = Color(0.05, 0.07, 0.1, 0.85)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.89, 0.66, 0.24, 0.7)
-corner_radius_top_left = 0
-corner_radius_top_right = 0
-corner_radius_bottom_right = 0
-corner_radius_bottom_left = 0
-content_margin_left = 10.0
-content_margin_top = 6.0
-content_margin_right = 10.0
-content_margin_bottom = 6.0
 
 [node name="SaveIndicator" type="CanvasLayer"]
 process_mode = 3
 layer = 90
 script = ExtResource("1_save_ind_scr")
 
-[node name="Container" type="PanelContainer" parent="."]
+[node name="Container" type="HBoxContainer" parent="."]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -190.0
-offset_top = -52.0
-offset_right = -24.0
-offset_bottom = -20.0
+offset_left = -220.0
+offset_top = -54.0
+offset_right = -32.0
+offset_bottom = -28.0
 grow_horizontal = 0
 grow_vertical = 0
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_box")
+theme_override_constants/separation = 10
+alignment = 2
 
-[node name="HBox" type="HBoxContainer" parent="Container"]
+[node name="SpinnerIcon" type="Label" parent="Container"]
+custom_minimum_size = Vector2(16, 16)
 layout_mode = 2
-theme_override_constants/separation = 8
-alignment = 1
-
-[node name="IconLabel" type="Label" parent="Container/HBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.898, 0.663, 0.235, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
 theme_override_font_sizes/font_size = 14
-text = "●"
+text = "⟳"
+horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="StatusLabel" type="Label" parent="Container/HBox"]
+[node name="StatusLabel" type="Label" parent="Container"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.957, 0.922, 0.851, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 15
 text = "Saving..."
 vertical_alignment = 1
+autowrap_mode = 0
