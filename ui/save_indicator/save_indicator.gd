@@ -40,6 +40,7 @@ func start_save_sequence() -> void:
 
 	container.visible = true
 	_is_spinning = true
+	spinner_icon.visible = true
 	spinner_icon.rotation = 0.0
 	spinner_icon.text = "⟳"
 	status_label.text = "Saving..."
@@ -67,7 +68,8 @@ func start_save_sequence() -> void:
 func _transition_to_completed() -> void:
 	_is_spinning = false
 	spinner_icon.rotation = 0.0
-	spinner_icon.text = "✓"
+	spinner_icon.visible = false
+	spinner_icon.text = ""
 	status_label.text = "Saving Completed"
 
 func _show_save_error() -> void:
