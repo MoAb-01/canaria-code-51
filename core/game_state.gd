@@ -3,6 +3,7 @@ extends Node
 ## Manages live quest variables, current environment status, and global input mapping.
 
 var story_flags: Dictionary = {}
+var world_state: Dictionary = {}
 var current_level: String = ""
 var player_spawn_point: Vector2 = Vector2.ZERO
 var has_flashlight: bool = true
@@ -25,6 +26,39 @@ func has_flag(key: String) -> bool:
 
 func clear_flags() -> void:
 	story_flags.clear()
+
+func set_world_state(key: String, value: Variant) -> void:
+	world_state[key] = value
+
+func get_world_state(key: String, default_value: Variant = null) -> Variant:
+	return world_state.get(key, default_value)
+
+func has_world_state(key: String) -> bool:
+	return world_state.has(key)
+
+func to_dict() -> Dictionary:
+	return {
+		"story_flags": story_flags.duplicate(true),
+		"world_state": world_state.duplicate(true),
+		"current_level": current_level,
+		"player_spawn_point": {"x": player_spawn_point.x, "y": player_spawn_point.y},
+		"has_flashlight": has_flashlight,
+		"is_cutscene_active": is_cutscene_active
+	}
+
+func from_dict(data: Dictionary) -> void:
+	if not data is Dictionary:
+		return
+	story_flags = data.get("story_flags", {}).duplicate(true)
+	world_state = data.get("world_state", {}).duplicate(true)
+	current_level = str(data.get("current_level", ""))
+	var sp = data.get("player_spawn_point", {})
+	if sp is Dictionary:
+		player_spawn_point = Vector2(float(sp.get("x", 0.0)), float(sp.get("y", 0.0)))
+	elif sp is Vector2:
+		player_spawn_point = sp
+	has_flashlight = bool(data.get("has_flashlight", true))
+	is_cutscene_active = bool(data.get("is_cutscene_active", false))
 
 func _ensure_global_input_actions() -> void:
 	var key_bindings := {

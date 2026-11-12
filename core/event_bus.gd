@@ -25,6 +25,14 @@ signal dialogue_finished()
 signal game_paused(is_paused: bool, is_cutscene: bool)
 signal cutscene_state_changed(is_active: bool)
 
+# Save & Load Lifecycle Signals
+signal save_requested(slot: int, spawn_marker_id: String)
+signal game_saved(slot: int, success: bool)
+signal game_loaded(slot: int)
+
+# UI Notification Signals
+signal notification_displayed(message: String, duration: float)
+
 # Flow & Settings Signals
 signal screen_change_requested(target_scene_path: String)
 signal settings_changed(setting_key: String, value: Variant)
