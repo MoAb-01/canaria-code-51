@@ -6,7 +6,7 @@ extends "res://entities/base_character.gd"
 @export var character_name: String = "CREW MEMBER"
 @export var portrait: Texture2D
 @export_multiline var dialogue_lines: Array[String] = [
-	"Keep your head down, Tariq.",
+	"Keep your head down, Tarek.",
 	"The patrol rotates every twenty minutes.",
 	"Get to the communications deck before sunrise."
 ]

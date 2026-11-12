@@ -1,6 +1,6 @@
 class_name Player
 extends "res://entities/base_character.gd"
-## Unified Player Controller (Tariq).
+## Unified Player Controller (Tarek).
 ## Handles Locomotion, Stealth Crouch, Pseudo-Z Jump, Combat, Cargo Push/Pull, and Flashlight.
 
 # Motion Tuning

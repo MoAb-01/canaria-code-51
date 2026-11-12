@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cw0035wdof4do"
-path="res://.godot/imported/tariq_expansion_spritesheet.png-e628c4ec3dc5acaf27a0ce08debc0a2d.ctex"
+uid="uid://bi5e8ha3auwp4"
+path="res://.godot/imported/tarek_expansion_spritesheet.png-e7ed0cfefd3327a738e750e8e8bc3c12.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/tariq/tariq_expansion_spritesheet.png"
-dest_files=["res://.godot/imported/tariq_expansion_spritesheet.png-e628c4ec3dc5acaf27a0ce08debc0a2d.ctex"]
+source_file="res://assets/sprites/tarek/tarek_expansion_spritesheet.png"
+dest_files=["res://.godot/imported/tarek_expansion_spritesheet.png-e7ed0cfefd3327a738e750e8e8bc3c12.ctex"]
 
 [params]
 

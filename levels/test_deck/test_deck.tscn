@@ -1,9 +1,9 @@
 [gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://levels/test_deck/test_deck.gd" id="1_game_scr"]
-[ext_resource type="PackedScene" path="res://entities/player/tariq.tscn" id="2_tariq_scn"]
+[ext_resource type="PackedScene" path="res://entities/player/tarek.tscn" id="2_tarek_scn"]
 [ext_resource type="PackedScene" path="res://entities/npc/base_npc.tscn" id="3_npc_scn"]
-[ext_resource type="Texture2D" path="res://assets/characters/tariq_portrait_256.png" id="4_portrait_tex"]
+[ext_resource type="Texture2D" path="res://assets/characters/tarek_portrait_256.png" id="4_portrait_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hwall"]
 size = Vector2(1440, 30)
@@ -184,9 +184,9 @@ occluder = SubResource("OccluderPolygon2D_crate")
 position = Vector2(800, 540)
 character_name = "CREW OFFICER"
 portrait = ExtResource("4_portrait_tex")
-dialogue_lines = PackedStringArray("Keep your voice down, Tariq.", "The patrol boat is circling starboard.", "Search the communication deck for the encrypted cipher.")
+dialogue_lines = PackedStringArray("Keep your voice down, Tarek.", "The patrol boat is circling starboard.", "Search the communication deck for the encrypted cipher.")
 
-[node name="Tariq" parent="World" instance=ExtResource("2_tariq_scn")]
+[node name="Tarek" parent="World" instance=ExtResource("2_tarek_scn")]
 y_sort_enabled = true
 position = Vector2(960, 540)
 
@@ -214,7 +214,7 @@ theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 28
-text = "CANARIA CODE 51 — TARIQ TEST STAGE"
+text = "CANARIA CODE 51 — TAREK TEST STAGE"
 
 [node name="Instructions" type="Label" parent="HUD/Margin/VBox"]
 layout_mode = 2

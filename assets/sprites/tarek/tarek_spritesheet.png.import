@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d4eulgohfcdfq"
-path="res://.godot/imported/tariq_portrait_256.png-23d117b4605389fe087316f18cd68e66.ctex"
+uid="uid://b3i6mxs0w3fx5"
+path="res://.godot/imported/tarek_spritesheet.png-59086932d8460237d2809ffe8d51df71.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/tariq_portrait_256.png"
-dest_files=["res://.godot/imported/tariq_portrait_256.png-23d117b4605389fe087316f18cd68e66.ctex"]
+source_file="res://assets/sprites/tarek/tarek_spritesheet.png"
+dest_files=["res://.godot/imported/tarek_spritesheet.png-59086932d8460237d2809ffe8d51df71.ctex"]
 
 [params]
 

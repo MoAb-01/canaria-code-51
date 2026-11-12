@@ -27,7 +27,7 @@ res://
 ├── levels/                # Playable game environments
 │   └── test_deck/         # Test stage / ship deck level
 ├── entities/              # Self-contained game actors
-│   ├── player/            # Player scene (Tariq), frames, controller
+│   ├── player/            # Player scene (Tarek), frames, controller
 │   └── npc/               # Base NPC, archetypes, and specific characters
 ├── components/            # Reusable sub-nodes & modular behaviors
 │   ├── interaction/       # InteractionArea, Interactor, PromptTrigger

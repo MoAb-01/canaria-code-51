@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bgpq7ei8fsdbj"
-path="res://.godot/imported/tariq_flashlight.png-120d86527854c6396e162c4e5e2b7e08.ctex"
+uid="uid://b5k758jsdm8at"
+path="res://.godot/imported/tarek_flashlight.png-1e62606e2de2d670cf415ab7c6d455db.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/tariq/tariq_flashlight.png"
-dest_files=["res://.godot/imported/tariq_flashlight.png-120d86527854c6396e162c4e5e2b7e08.ctex"]
+source_file="res://assets/sprites/tarek/tarek_flashlight.png"
+dest_files=["res://.godot/imported/tarek_flashlight.png-1e62606e2de2d670cf415ab7c6d455db.ctex"]
 
 [params]
 
