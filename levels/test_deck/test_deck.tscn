@@ -1,9 +1,10 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://levels/test_deck/test_deck.gd" id="1_game_scr"]
 [ext_resource type="PackedScene" path="res://entities/player/tarek.tscn" id="2_tarek_scn"]
 [ext_resource type="PackedScene" path="res://entities/npc/base_npc.tscn" id="3_npc_scn"]
 [ext_resource type="Texture2D" path="res://assets/characters/tarek_portrait_256.png" id="4_portrait_tex"]
+[ext_resource type="PackedScene" path="res://ui/pause_menu/pause_menu.tscn" id="5_pause_scn"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hwall"]
 size = Vector2(1440, 30)
@@ -224,4 +225,6 @@ theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 20
-text = "[WASD] Move  •  [F] Flashlight  •  [LMB / J] Punch  •  [RMB / K] Defend  •  [E] Grab Crate / Talk  •  [CTRL] Sneak  •  [SPACE] Jump"
+text = "[WASD] Move  •  [F] Flashlight  •  [LMB / J] Punch  •  [RMB / K] Defend  •  [E] Grab Crate / Talk  •  [CTRL] Sneak  •  [SPACE] Jump  •  [ESC] Pause"
+
+[node name="PauseLayer" parent="." instance=ExtResource("5_pause_scn")]

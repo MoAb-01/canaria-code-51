@@ -6,9 +6,13 @@ var story_flags: Dictionary = {}
 var current_level: String = ""
 var player_spawn_point: Vector2 = Vector2.ZERO
 var has_flashlight: bool = true
+var is_cutscene_active: bool = false
 
 func _ready() -> void:
 	_ensure_global_input_actions()
+	var eb = get_node_or_null("/root/EventBus")
+	if eb and eb.has_signal("cutscene_state_changed"):
+		eb.cutscene_state_changed.connect(func(active: bool): is_cutscene_active = active)
 
 func set_flag(key: String, value: Variant) -> void:
 	story_flags[key] = value
@@ -37,6 +41,8 @@ func _ensure_global_input_actions() -> void:
 		"toggle_flashlight": [KEY_F],
 		"attack": [KEY_J],
 		"defend": [KEY_K],
+		"ui_cancel": [KEY_ESCAPE],
+		"pause": [KEY_ESCAPE, KEY_P],
 	}
 
 	for action in key_bindings:
@@ -78,4 +84,15 @@ func _ensure_global_input_actions() -> void:
 		var joy_ev := InputEventJoypadButton.new()
 		joy_ev.button_index = JOY_BUTTON_DPAD_LEFT
 		InputMap.action_add_event("toggle_flashlight", joy_ev)
+
+	for p_action in ["ui_cancel", "pause"]:
+		var has_start := false
+		for ev in InputMap.action_get_events(p_action):
+			if ev is InputEventJoypadButton and ev.button_index == JOY_BUTTON_START:
+				has_start = true
+				break
+		if not has_start:
+			var start_ev := InputEventJoypadButton.new()
+			start_ev.button_index = JOY_BUTTON_START
+			InputMap.action_add_event(p_action, start_ev)
 

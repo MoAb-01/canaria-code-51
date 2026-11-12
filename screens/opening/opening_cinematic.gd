@@ -12,6 +12,14 @@ var elapsed: float = 0.0
 var is_transitioning: bool = false
 
 func _ready() -> void:
+	GameState.is_cutscene_active = true
+	EventBus.cutscene_state_changed.emit(true)
+
+	tree_exited.connect(func():
+		GameState.is_cutscene_active = false
+		EventBus.cutscene_state_changed.emit(false)
+	)
+
 	fade_overlay.modulate.a = 1.0
 	
 	# Load frames
@@ -54,6 +62,8 @@ func start_fade_out() -> void:
 	if is_transitioning:
 		return
 	is_transitioning = true
+	GameState.is_cutscene_active = false
+	EventBus.cutscene_state_changed.emit(false)
 	
 	var tween: Tween = create_tween()
 	tween.tween_property(fade_overlay, "modulate:a", 1.0, 0.4)

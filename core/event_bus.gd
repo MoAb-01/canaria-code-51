@@ -21,8 +21,12 @@ signal dialogue_started(speaker_name: String, lines: Array[String])
 signal dialogue_line_advanced(line_index: int, total_lines: int)
 signal dialogue_finished()
 
+# Pause & Cutscene Signals
+signal game_paused(is_paused: bool, is_cutscene: bool)
+signal cutscene_state_changed(is_active: bool)
+
 # Flow & Settings Signals
 signal screen_change_requested(target_scene_path: String)
-signal settings_changed()
+signal settings_changed(setting_key: String, value: Variant)
 signal fullscreen_toggled(is_fullscreen: bool)
 

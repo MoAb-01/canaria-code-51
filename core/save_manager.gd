@@ -48,7 +48,22 @@ func save_settings() -> void:
 	config.save(SETTINGS_FILE_PATH)
 	
 	if has_node("/root/EventBus"):
-		get_node("/root/EventBus").settings_changed.emit()
+		get_node("/root/EventBus").settings_changed.emit("", null)
+
+func set_setting(key: String, value: Variant) -> void:
+	match key:
+		"master_vol": master_volume = clampi(int(value), 0, 100)
+		"music_vol": music_volume = clampi(int(value), 0, 100)
+		"sfx_vol": sfx_volume = clampi(int(value), 0, 100)
+		"ui_clicks": ui_clicks_enabled = bool(value)
+		"fullscreen":
+			is_fullscreen = bool(value)
+			var fs = get_node_or_null("/root/FullscreenManager")
+			if fs: fs.set_fullscreen(is_fullscreen)
+	apply_all_settings()
+	save_settings()
+	if has_node("/root/EventBus"):
+		get_node("/root/EventBus").settings_changed.emit(key, value)
 
 func apply_all_settings() -> void:
 	apply_audio_bus_volume(bus_master, master_volume)

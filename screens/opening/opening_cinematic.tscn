@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://screens/opening/opening_cinematic.gd" id="1_open_scr"]
+[ext_resource type="PackedScene" path="res://ui/pause_menu/pause_menu.tscn" id="2_pause_scn"]
 
 [node name="OpeningCinematic" type="Control"]
 layout_mode = 3
@@ -41,3 +42,5 @@ mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
 [node name="AudioPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="PauseLayer" parent="." instance=ExtResource("2_pause_scn")]

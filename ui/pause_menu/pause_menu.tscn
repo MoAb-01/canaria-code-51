@@ -1,0 +1,190 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://ui/pause_menu/pause_menu.gd" id="1_pause_scr"]
+[ext_resource type="PackedScene" path="res://ui/options_panel/options_panel.tscn" id="2_opt_scn"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui_hover.wav" id="3_hover_sfx"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="4_click_sfx"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_maritime"]
+bg_color = Color(0.06, 0.08, 0.12, 0.96)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.604, 0.122, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0, 0, 0.6)
+shadow_size = 16
+shadow_offset = Vector2(4, 4)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_btn"]
+
+[node name="PauseLayer" type="CanvasLayer"]
+process_mode = 3
+layer = 100
+script = ExtResource("1_pause_scr")
+
+[node name="DimOverlay" type="ColorRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.04, 0.06, 0.08, 0.65)
+
+[node name="CutscenePauseLabel" type="Label" parent="."]
+visible = false
+modulate = Color(1, 1, 1, 0)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -30.0
+offset_right = 200.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 0.95)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 48
+text = "— PAUSED —"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SlidingPanel" type="PanelContainer" parent="."]
+visible = false
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_left = -420.0
+offset_top = 180.0
+offset_right = -40.0
+offset_bottom = -180.0
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_maritime")
+
+[node name="Margin" type="MarginContainer" parent="SlidingPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
+
+[node name="VBox" type="VBoxContainer" parent="SlidingPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="SlidingPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 40
+text = "PAUSED"
+
+[node name="HSeparator" type="HSeparator" parent="SlidingPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="MenuButtons" type="VBoxContainer" parent="SlidingPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="ContinueBtn" type="Button" parent="SlidingPanel/Margin/VBox/MenuButtons"]
+layout_mode = 2
+focus_mode = 2
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_focus_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_hover_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+text = "> CONTINUE"
+flat = true
+alignment = 0
+
+[node name="OptionsBtn" type="Button" parent="SlidingPanel/Margin/VBox/MenuButtons"]
+layout_mode = 2
+focus_mode = 2
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_focus_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_hover_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+text = "> OPTIONS"
+flat = true
+alignment = 0
+
+[node name="MainMenuBtn" type="Button" parent="SlidingPanel/Margin/VBox/MenuButtons"]
+layout_mode = 2
+focus_mode = 2
+theme_override_colors/font_color = Color(0.898, 0.929, 0.961, 1)
+theme_override_colors/font_focus_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_hover_color = Color(1, 0.604, 0.122, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.03, 0.02, 0.95)
+theme_override_colors/font_outline_color = Color(0.11, 0.07, 0.05, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+text = "> MAIN MENU"
+flat = true
+alignment = 0
+
+[node name="Spacer" type="Control" parent="SlidingPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HintLabel" type="Label" parent="SlidingPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 0.7)
+theme_override_font_sizes/font_size = 18
+text = "[ESC] Resume"
+
+[node name="OptionsPanel" parent="." instance=ExtResource("2_opt_scn")]
+visible = false
+
+[node name="HoverSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_hover_sfx")
+bus = &"SFX"
+
+[node name="ClickSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_click_sfx")
+bus = &"SFX"
