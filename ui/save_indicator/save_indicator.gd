@@ -1,17 +1,25 @@
 class_name SaveIndicator
 extends CanvasLayer
 ## Minimalist borderless corner Save Indicator.
-## Displays a crisp white floating "Saving..." -> "Saving Completed" transition.
+## State-driven by SaveManager disk I/O with guaranteed minimum display duration.
 
 @onready var container: HBoxContainer = $Container
 @onready var spinner_icon: Label = $Container/SpinnerIcon
 @onready var status_label: Label = $Container/StatusLabel
 
-var _tween: Tween = null
-var _is_spinning: bool = false
-
+const MIN_SAVING_DURATION: float = 0.75
+const RESULT_HOLD_DURATION: float = 1.6
 const BASE_OFFSET_BOTTOM: float = -36.0
 const ROTATION_SPEED: float = 8.0
+
+const COLOR_WHITE: Color = Color(1.0, 1.0, 1.0, 1.0)
+const COLOR_FAILED: Color = Color(1.0, 0.42, 0.42, 1.0) # #FF6B6B
+
+var _is_saving_in_progress: bool = false
+var _disk_write_completed: bool = false
+var _last_save_succeeded: bool = true
+var _elapsed_saving_time: float = 0.0
+var _tween: Tween = null
 
 func _ready() -> void:
 	container.modulate.a = 0.0
@@ -20,69 +28,66 @@ func _ready() -> void:
 	var eb = get_node_or_null("/root/EventBus")
 	if eb:
 		if eb.has_signal("save_requested"):
-			eb.save_requested.connect(func(_slot, _id): start_save_sequence())
+			eb.save_requested.connect(_on_save_requested)
 		if eb.has_signal("game_saved"):
 			eb.game_saved.connect(_on_game_saved)
 
 func _process(delta: float) -> void:
-	if _is_spinning:
-		spinner_icon.rotation += delta * ROTATION_SPEED
-
-func _on_game_saved(_slot: int, success: bool) -> void:
-	if not success:
-		_show_save_error()
+	if not _is_saving_in_progress:
 		return
-	start_save_sequence()
+	spinner_icon.rotation += delta * ROTATION_SPEED
+	_elapsed_saving_time += delta
+	if _disk_write_completed and _elapsed_saving_time >= MIN_SAVING_DURATION:
+		_is_saving_in_progress = false
+		_show_result()
 
-func start_save_sequence() -> void:
+func _on_save_requested(_slot: int = 1, _location_label: String = "") -> void:
 	if _tween and _tween.is_valid():
 		_tween.kill()
 
+	_is_saving_in_progress = true
+	_disk_write_completed = false
+	_elapsed_saving_time = 0.0
+
 	container.visible = true
-	_is_spinning = true
 	spinner_icon.visible = true
 	spinner_icon.rotation = 0.0
 	spinner_icon.text = "⟳"
+	spinner_icon.modulate = COLOR_WHITE
 	status_label.text = "Saving..."
+	status_label.modulate = COLOR_WHITE
 	container.offset_bottom = BASE_OFFSET_BOTTOM + 4.0
 
 	_tween = create_tween()
-	# Phase 1: Fade in (0.2s) and slide up by 4px
 	_tween.parallel().tween_property(container, "modulate:a", 1.0, 0.2)
 	_tween.parallel().tween_property(container, "offset_bottom", BASE_OFFSET_BOTTOM, 0.2).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
-	# Phase 2: Hold saving state (0.9s)
-	_tween.tween_interval(0.9)
+func _on_game_saved(_slot: int, success: bool) -> void:
+	if not _is_saving_in_progress:
+		_on_save_requested(_slot, "")
+	_disk_write_completed = true
+	_last_save_succeeded = success
 
-	# Phase 3: Completion Phase (1.7s)
-	_tween.tween_callback(_transition_to_completed)
-	_tween.tween_interval(1.7)
+func _show_result() -> void:
+	spinner_icon.rotation = 0.0
+	if _last_save_succeeded:
+		spinner_icon.visible = true
+		spinner_icon.text = "✓"
+		spinner_icon.modulate = COLOR_WHITE
+		status_label.text = "Saving Completed"
+		status_label.modulate = COLOR_WHITE
+	else:
+		spinner_icon.visible = true
+		spinner_icon.text = "✕"
+		spinner_icon.modulate = COLOR_FAILED
+		status_label.text = "Save Failed"
+		status_label.modulate = COLOR_FAILED
 
-	# Phase 4: Fade Out (0.25s)
+	if _tween and _tween.is_valid():
+		_tween.kill()
+	_tween = create_tween()
+	_tween.tween_interval(RESULT_HOLD_DURATION)
 	_tween.tween_property(container, "modulate:a", 0.0, 0.25)
 	_tween.tween_callback(func():
 		container.visible = false
-		_is_spinning = false
 	)
-
-func _transition_to_completed() -> void:
-	_is_spinning = false
-	spinner_icon.rotation = 0.0
-	spinner_icon.visible = false
-	spinner_icon.text = ""
-	status_label.text = "Saving Completed"
-
-func _show_save_error() -> void:
-	if _tween and _tween.is_valid():
-		_tween.kill()
-	container.visible = true
-	_is_spinning = false
-	spinner_icon.rotation = 0.0
-	spinner_icon.text = "✕"
-	status_label.text = "Save Failed"
-
-	_tween = create_tween()
-	_tween.parallel().tween_property(container, "modulate:a", 1.0, 0.2)
-	_tween.tween_interval(1.5)
-	_tween.tween_property(container, "modulate:a", 0.0, 0.25)
-	_tween.tween_callback(func(): container.visible = false)

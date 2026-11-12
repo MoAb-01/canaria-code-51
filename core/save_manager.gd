@@ -99,6 +99,11 @@ func get_save_path(slot: int) -> String:
 
 func save_game(slot: int, spawn_pos: Vector2, location_label: String = "") -> bool:
 	_ensure_save_dir()
+	if location_label.is_empty(): location_label = "Crew Quarters - Deck B"
+	var eb_req = get_node_or_null("/root/EventBus")
+	if eb_req and eb_req.has_signal("save_requested"):
+		eb_req.save_requested.emit(slot, location_label)
+
 	var cs := get_tree().current_scene
 	var level_path: String = cs.scene_file_path if cs else "res://levels/test_deck/test_deck.tscn"
 	if level_path.is_empty(): level_path = "res://levels/test_deck/test_deck.tscn"
