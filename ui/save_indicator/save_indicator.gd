@@ -70,16 +70,12 @@ func _on_game_saved(_slot: int, success: bool) -> void:
 
 func _show_result() -> void:
 	spinner_icon.rotation = 0.0
+	spinner_icon.visible = false
+	spinner_icon.text = ""
 	if _last_save_succeeded:
-		spinner_icon.visible = true
-		spinner_icon.text = "✓"
-		spinner_icon.modulate = COLOR_WHITE
 		status_label.text = "Saving Completed"
 		status_label.modulate = COLOR_WHITE
 	else:
-		spinner_icon.visible = true
-		spinner_icon.text = "✕"
-		spinner_icon.modulate = COLOR_FAILED
 		status_label.text = "Save Failed"
 		status_label.modulate = COLOR_FAILED
 
