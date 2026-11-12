@@ -8,6 +8,15 @@
 [ext_resource type="Texture2D" path="res://assets/textures/flashlight_spill.png" id="6_spill_tex"]
 [ext_resource type="Texture2D" path="res://assets/textures/shadow_oval.png" id="7_shadow_tex"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx_flashlight.wav" id="8_sfx_click"]
+[ext_resource type="Texture2D" path="res://assets/sprites/tarek/tarek_tactical_spritesheet.png" id="9_tactical_sheet"]
+[ext_resource type="Script" path="res://components/health_component.gd" id="10_health_scr"]
+[ext_resource type="Script" path="res://components/weapon_component.gd" id="11_weapon_scr"]
+[ext_resource type="Script" path="res://components/cover_detector_component.gd" id="12_cover_scr"]
+[ext_resource type="Script" path="res://components/dodge_component.gd" id="13_dodge_scr"]
+[ext_resource type="Resource" path="res://core/resources/pistol_data.tres" id="14_pistol_res"]
+[ext_resource type="PackedScene" path="res://entities/projectiles/bullet.tscn" id="15_bullet_scn"]
+[ext_resource type="Texture2D" path="res://assets/sprites/tarek/pistol_arm.png" id="16_pistol_arm"]
+[ext_resource type="PackedScene" path="res://ui/combat_reticle/aim_indicator.tscn" id="17_aim_ind_scn"]
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_down_0"]
 atlas = ExtResource("2_sheet")
@@ -372,6 +381,70 @@ region = Rect2(96, 80, 32, 40)
 [sub_resource type="AtlasTexture" id="Atlas_flashlight_crouch_up_col4"]
 atlas = ExtResource("4_fl_sheet")
 region = Rect2(128, 80, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_standing_aim_down"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(0, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_standing_aim_side"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(32, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_standing_aim_up"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(64, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_peek_shoot_up"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(96, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_crouch_cover_down"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(0, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_crouch_cover_side"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(32, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_crouch_cover_up"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(64, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_peek_shoot_down"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(96, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_peek_shoot_side"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(0, 80, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_damaged_idle_down"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(32, 80, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_damaged_idle_side"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(64, 80, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_damaged_idle_up"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(96, 80, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_dodge_roll_0"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(0, 120, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_dodge_roll_1"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(32, 120, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_dodge_roll_2"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(64, 120, 32, 40)
+
+[sub_resource type="AtlasTexture" id="Atlas_dodge_roll_3"]
+atlas = ExtResource("9_tactical_sheet")
+region = Rect2(96, 120, 32, 40)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_tarek"]
 animations = [{
@@ -772,7 +845,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("Atlas_flashlight_idle_side_col2")
+"texture": SubResource("Atlas_flashlight_idle_side_col3")
 }],
 "loop": false,
 "name": &"flashlight_idle_side",
@@ -851,6 +924,119 @@ animations = [{
 "loop": true,
 "name": &"flashlight_crouch_up",
 "speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_standing_aim_down")
+}],
+"loop": true,
+"name": &"standing_aim_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_standing_aim_side")
+}],
+"loop": true,
+"name": &"standing_aim_side",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_standing_aim_up")
+}],
+"loop": true,
+"name": &"standing_aim_up",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_crouch_cover_down")
+}],
+"loop": true,
+"name": &"crouch_cover_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_crouch_cover_side")
+}],
+"loop": true,
+"name": &"crouch_cover_side",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_crouch_cover_up")
+}],
+"loop": true,
+"name": &"crouch_cover_up",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_peek_shoot_down")
+}],
+"loop": true,
+"name": &"peek_shoot_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_peek_shoot_side")
+}],
+"loop": true,
+"name": &"peek_shoot_side",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_peek_shoot_up")
+}],
+"loop": true,
+"name": &"peek_shoot_up",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_damaged_idle_down")
+}],
+"loop": true,
+"name": &"damaged_idle_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_damaged_idle_side")
+}],
+"loop": true,
+"name": &"damaged_idle_side",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_damaged_idle_up")
+}],
+"loop": true,
+"name": &"damaged_idle_up",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_dodge_roll_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_dodge_roll_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_dodge_roll_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_dodge_roll_3")
+}],
+"loop": false,
+"name": &"dodge_roll",
+"speed": 18.0
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_feet"]
@@ -908,7 +1094,8 @@ drag_horizontal_enabled = true
 drag_vertical_enabled = true
 
 [node name="FlashlightPivot" type="Node2D" parent="."]
-position = Vector2(0, -14)
+z_index = 1
+position = Vector2(-12, -32)
 
 [node name="FlashlightCone" type="PointLight2D" parent="FlashlightPivot"]
 enabled = false
@@ -932,4 +1119,23 @@ texture_scale = 1.6
 [node name="FlashlightAudio" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("8_sfx_click")
 bus = &"SFX"
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("10_health_scr")
+target_sprite_path = NodePath("../AnimatedSprite2D")
+
+[node name="WeaponComponent" type="Node2D" parent="."]
+script = ExtResource("11_weapon_scr")
+weapon_data = ExtResource("14_pistol_res")
+bullet_scene = ExtResource("15_bullet_scn")
+weapon_texture = ExtResource("16_pistol_arm")
+
+[node name="AimIndicator" parent="." instance=ExtResource("17_aim_ind_scn")]
+weapon_path = NodePath("../WeaponComponent")
+
+[node name="CoverDetectorComponent" type="Node2D" parent="."]
+script = ExtResource("12_cover_scr")
+
+[node name="DodgeComponent" type="Node" parent="."]
+script = ExtResource("13_dodge_scr")
 

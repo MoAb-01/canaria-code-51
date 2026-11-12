@@ -38,3 +38,9 @@ signal screen_change_requested(target_scene_path: String)
 signal settings_changed(setting_key: String, value: Variant)
 signal fullscreen_toggled(is_fullscreen: bool)
 
+# Combat, Weapon & Health Signals
+signal ammo_changed(entity: Node, current_mag: int, reserve_ammo: int)
+signal weapon_fired(shooter: Node, origin: Vector2, direction: Vector2, noise_radius: float)
+signal entity_damaged(entity: Node, amount: float, current_hp: float, max_hp: float, hit_direction: Vector2)
+signal entity_died(entity: Node)
+

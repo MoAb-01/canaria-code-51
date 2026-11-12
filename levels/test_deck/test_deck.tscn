@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://ui/pause_menu/pause_menu.tscn" id="5_pause_scn"]
 [ext_resource type="PackedScene" path="res://entities/environment/safehouse_logbook.tscn" id="6_safehouse_scn"]
 [ext_resource type="PackedScene" path="res://ui/save_indicator/save_indicator.tscn" id="7_save_ind_scn"]
+[ext_resource type="PackedScene" path="res://entities/npcs/test_guard.tscn" id="8_test_guard_scn"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hwall"]
 size = Vector2(1440, 30)
@@ -107,7 +108,7 @@ shape = SubResource("RectangleShape2D_vwall")
 [node name="World" type="Node2D" parent="."]
 y_sort_enabled = true
 
-[node name="TestCrate1" type="StaticBody2D" parent="World" groups=["pushable"]]
+[node name="TestCrate1" type="StaticBody2D" parent="World" groups=["low_cover", "pushable"]]
 y_sort_enabled = true
 position = Vector2(680, 480)
 collision_layer = 2
@@ -145,7 +146,7 @@ shape = SubResource("RectangleShape2D_crate")
 [node name="LightOccluder2D" type="LightOccluder2D" parent="World/TestCrate1"]
 occluder = SubResource("OccluderPolygon2D_crate")
 
-[node name="TestCrate2" type="StaticBody2D" parent="World" groups=["pushable"]]
+[node name="TestCrate2" type="StaticBody2D" parent="World" groups=["low_cover", "pushable"]]
 y_sort_enabled = true
 position = Vector2(1240, 620)
 collision_layer = 2
@@ -192,6 +193,9 @@ dialogue_lines = PackedStringArray("Keep your voice down, Tarek.", "The patrol b
 [node name="SafehouseLogbook" parent="World" instance=ExtResource("6_safehouse_scn")]
 position = Vector2(1080, 420)
 
+[node name="TestGuard" parent="World" instance=ExtResource("8_test_guard_scn")]
+position = Vector2(1320, 480)
+
 [node name="Tarek" parent="World" instance=ExtResource("2_tarek_scn")]
 y_sort_enabled = true
 position = Vector2(960, 540)
@@ -230,7 +234,7 @@ theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 20
-text = "[WASD] Move  •  [F] Flashlight  •  [LMB / J] Punch  •  [RMB / K] Defend  •  [E] Logbook / Crate / Talk  •  [CTRL] Sneak  •  [SPACE] Jump  •  [ESC] Pause"
+text = "[WASD] Move  •  [TAB/RMB] Combat Mode  •  [LMB] Shoot  •  [R] Reload  •  [Q] Dodge Roll  •  [C/CTRL] Cover  •  [F] Light  •  [E] Interact"
 
 [node name="SaveIndicator" parent="." instance=ExtResource("7_save_ind_scn")]
 
