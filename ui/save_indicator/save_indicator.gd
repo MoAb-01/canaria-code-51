@@ -10,13 +10,13 @@ extends CanvasLayer
 var _tween: Tween = null
 var _is_spinning: bool = false
 
-const BASE_OFFSET_BOTTOM: float = -28.0
+const BASE_OFFSET_BOTTOM: float = -36.0
 const ROTATION_SPEED: float = 8.0
 
 func _ready() -> void:
 	container.modulate.a = 0.0
 	container.visible = false
-	spinner_icon.pivot_offset = Vector2(8, 8)
+	spinner_icon.pivot_offset = Vector2(10, 10)
 	var eb = get_node_or_null("/root/EventBus")
 	if eb:
 		if eb.has_signal("save_requested"):
