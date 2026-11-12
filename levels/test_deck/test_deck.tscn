@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://levels/test_deck/test_deck.gd" id="1_game_scr"]
 [ext_resource type="PackedScene" path="res://entities/player/tarek.tscn" id="2_tarek_scn"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://assets/characters/tarek_portrait_256.png" id="4_portrait_tex"]
 [ext_resource type="PackedScene" path="res://ui/pause_menu/pause_menu.tscn" id="5_pause_scn"]
 [ext_resource type="PackedScene" path="res://entities/environment/safehouse_logbook.tscn" id="6_safehouse_scn"]
+[ext_resource type="PackedScene" path="res://ui/save_indicator/save_indicator.tscn" id="7_save_ind_scn"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hwall"]
 size = Vector2(1440, 30)
@@ -231,23 +232,6 @@ theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 20
 text = "[WASD] Move  •  [F] Flashlight  •  [LMB / J] Punch  •  [RMB / K] Defend  •  [E] Logbook / Crate / Talk  •  [CTRL] Sneak  •  [SPACE] Jump  •  [ESC] Pause"
 
-[node name="NotificationBanner" type="Label" parent="HUD"]
-modulate = Color(1, 1, 1, 0)
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -250.0
-offset_top = 112.0
-offset_right = 250.0
-offset_bottom = 146.0
-grow_horizontal = 2
-theme_override_colors/font_color = Color(0.4, 1, 0.7, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
-theme_override_constants/shadow_offset_x = 2
-theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 22
-text = "LOGBOOK UPDATED"
-horizontal_alignment = 1
-vertical_alignment = 1
+[node name="SaveIndicator" parent="." instance=ExtResource("7_save_ind_scn")]
 
 [node name="PauseLayer" parent="." instance=ExtResource("5_pause_scn")]
