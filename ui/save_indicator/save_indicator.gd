@@ -9,8 +9,10 @@ extends CanvasLayer
 
 const MIN_SAVING_DURATION: float = 0.75
 const RESULT_HOLD_DURATION: float = 1.6
+const FRAME_DURATION: float = 0.12
 const BASE_OFFSET_BOTTOM: float = -36.0
-const ROTATION_SPEED: float = 8.0
+
+const SPINNER_FRAMES: Array[String] = ["◐", "◓", "◑", "◒"]
 
 const COLOR_WHITE: Color = Color(1.0, 1.0, 1.0, 1.0)
 const COLOR_FAILED: Color = Color(1.0, 0.42, 0.42, 1.0) # #FF6B6B
@@ -19,12 +21,15 @@ var _is_saving_in_progress: bool = false
 var _disk_write_completed: bool = false
 var _last_save_succeeded: bool = true
 var _elapsed_saving_time: float = 0.0
+var _frame_timer: float = 0.0
+var _frame_index: int = 0
 var _tween: Tween = null
 
 func _ready() -> void:
 	container.modulate.a = 0.0
 	container.visible = false
-	spinner_icon.pivot_offset = Vector2(10, 10)
+	spinner_icon.rotation = 0.0
+	spinner_icon.pivot_offset = Vector2.ZERO
 	var eb = get_node_or_null("/root/EventBus")
 	if eb:
 		if eb.has_signal("save_requested"):
@@ -35,8 +40,14 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not _is_saving_in_progress:
 		return
-	spinner_icon.rotation += delta * ROTATION_SPEED
+
 	_elapsed_saving_time += delta
+	_frame_timer += delta
+	if _frame_timer >= FRAME_DURATION:
+		_frame_timer = fmod(_frame_timer, FRAME_DURATION)
+		_frame_index = (_frame_index + 1) % SPINNER_FRAMES.size()
+		spinner_icon.text = SPINNER_FRAMES[_frame_index]
+
 	if _disk_write_completed and _elapsed_saving_time >= MIN_SAVING_DURATION:
 		_is_saving_in_progress = false
 		_show_result()
@@ -48,11 +59,13 @@ func _on_save_requested(_slot: int = 1, _location_label: String = "") -> void:
 	_is_saving_in_progress = true
 	_disk_write_completed = false
 	_elapsed_saving_time = 0.0
+	_frame_timer = 0.0
+	_frame_index = 0
 
 	container.visible = true
 	spinner_icon.visible = true
 	spinner_icon.rotation = 0.0
-	spinner_icon.text = "⟳"
+	spinner_icon.text = SPINNER_FRAMES[0]
 	spinner_icon.modulate = COLOR_WHITE
 	status_label.text = "Saving..."
 	status_label.modulate = COLOR_WHITE
@@ -70,12 +83,15 @@ func _on_game_saved(_slot: int, success: bool) -> void:
 
 func _show_result() -> void:
 	spinner_icon.rotation = 0.0
-	spinner_icon.visible = false
-	spinner_icon.text = ""
+	spinner_icon.visible = true
 	if _last_save_succeeded:
+		spinner_icon.text = "✓"
+		spinner_icon.modulate = COLOR_WHITE
 		status_label.text = "Saving Completed"
 		status_label.modulate = COLOR_WHITE
 	else:
+		spinner_icon.text = "✕"
+		spinner_icon.modulate = COLOR_FAILED
 		status_label.text = "Save Failed"
 		status_label.modulate = COLOR_FAILED
 
