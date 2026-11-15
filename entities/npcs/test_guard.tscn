@@ -8,10 +8,14 @@
 [ext_resource type="Script" path="res://components/weapon_component.gd" id="6_weapon_scr"]
 [ext_resource type="Resource" path="res://core/resources/pistol_data.tres" id="7_pistol_res"]
 [ext_resource type="PackedScene" path="res://entities/projectiles/bullet.tscn" id="8_bullet_scn"]
+[ext_resource type="Script" path="res://components/hurtbox_component.gd" id="9_hurtbox_scr"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_guard"]
 radius = 10.0
 height = 28.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_guard_hurtbox"]
+size = Vector2(44, 88)
 
 [node name="TestGuard" type="CharacterBody2D"]
 y_sort_enabled = true
@@ -78,6 +82,16 @@ horizontal_alignment = 1
 script = ExtResource("5_health_scr")
 damaged_texture = ExtResource("3_damaged_tex")
 target_sprite_path = NodePath("../Sprite2D")
+
+[node name="HurtboxComponent" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("9_hurtbox_scr")
+health_component = NodePath("../HealthComponent")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent"]
+position = Vector2(0, -52)
+shape = SubResource("RectangleShape2D_guard_hurtbox")
 
 [node name="WeaponComponent" type="Node2D" parent="."]
 script = ExtResource("6_weapon_scr")

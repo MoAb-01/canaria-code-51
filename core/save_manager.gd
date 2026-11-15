@@ -123,6 +123,8 @@ func save_game(slot: int, spawn_pos: Vector2, location_label: String = "") -> bo
 
 	var gs = get_node_or_null("/root/GameState")
 	var gs_dict: Dictionary = gs.to_dict() if (gs and gs.has_method("to_dict")) else {}
+	var om = get_node_or_null("/root/ObjectiveManager")
+	var om_dict: Dictionary = om.to_dict() if (om and om.has_method("to_dict")) else {}
 
 	var save_data := {
 		"version": SAVE_SCHEMA_VERSION,
@@ -132,6 +134,7 @@ func save_game(slot: int, spawn_pos: Vector2, location_label: String = "") -> bo
 		"spawn_point": {"x": spawn_pos.x, "y": spawn_pos.y},
 		"player": player_data,
 		"game_state": gs_dict,
+		"objectives": om_dict,
 		"entities": entities_data
 	}
 
@@ -169,6 +172,10 @@ func load_game(slot: int) -> bool:
 	var gs = get_node_or_null("/root/GameState")
 	if gs and gs.has_method("from_dict"):
 		gs.from_dict(data.get("game_state", {}))
+	var om = get_node_or_null("/root/ObjectiveManager")
+	var om_data: Variant = data.get("objectives", null)
+	if om and om.has_method("from_dict") and om_data is Dictionary:
+		om.from_dict(om_data)
 
 	var sp: Dictionary = data.get("spawn_point", {})
 	var spawn_pos := Vector2(float(sp.get("x", 0.0)), float(sp.get("y", 0.0)))

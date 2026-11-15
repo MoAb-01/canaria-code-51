@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://levels/test_deck/test_deck.gd" id="1_game_scr"]
 [ext_resource type="PackedScene" path="res://entities/player/tarek.tscn" id="2_tarek_scn"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://entities/environment/safehouse_logbook.tscn" id="6_safehouse_scn"]
 [ext_resource type="PackedScene" path="res://ui/save_indicator/save_indicator.tscn" id="7_save_ind_scn"]
 [ext_resource type="PackedScene" path="res://entities/npcs/test_guard.tscn" id="8_test_guard_scn"]
+[ext_resource type="PackedScene" path="res://ui/objective_hud/objective_hud.tscn" id="9_objective_hud_scn"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hwall"]
 size = Vector2(1440, 30)
@@ -235,6 +236,8 @@ theme_override_constants/shadow_offset_y = 2
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 20
 text = "[WASD] Move  •  [TAB/RMB] Combat Mode  •  [LMB] Shoot  •  [R] Reload  •  [Q] Dodge Roll  •  [C/CTRL] Cover  •  [F] Light  •  [E] Interact"
+
+[node name="ObjectiveHud" parent="HUD" instance=ExtResource("9_objective_hud_scn")]
 
 [node name="SaveIndicator" parent="." instance=ExtResource("7_save_ind_scn")]
 

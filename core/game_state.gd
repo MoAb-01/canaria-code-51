@@ -95,9 +95,11 @@ func _ensure_global_input_actions() -> void:
 
 	var mouse_bindings := {
 		"attack": MOUSE_BUTTON_LEFT,
-		"defend": MOUSE_BUTTON_RIGHT,
+		"toggle_combat": MOUSE_BUTTON_RIGHT,
 	}
 	for action in mouse_bindings:
+		if not InputMap.has_action(action):
+			InputMap.add_action(action)
 		var btn: int = mouse_bindings[action]
 		var has_btn := false
 		for ev in InputMap.action_get_events(action):

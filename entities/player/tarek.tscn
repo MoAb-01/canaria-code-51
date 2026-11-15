@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" path="res://entities/projectiles/bullet.tscn" id="15_bullet_scn"]
 [ext_resource type="Texture2D" path="res://assets/sprites/tarek/pistol_arm.png" id="16_pistol_arm"]
 [ext_resource type="PackedScene" path="res://ui/combat_reticle/aim_indicator.tscn" id="17_aim_ind_scn"]
+[ext_resource type="Script" path="res://components/defense_component.gd" id="18_defense_scr"]
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_down_0"]
 atlas = ExtResource("2_sheet")
@@ -696,16 +697,10 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("Atlas_exp_r1_c4")
-}, {
-"duration": 1.0,
-"texture": SubResource("Atlas_exp_r1_c6")
-}, {
-"duration": 1.0,
-"texture": SubResource("Atlas_exp_r1_c7")
 }],
 "loop": false,
 "name": &"defend_side",
-"speed": 8.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -1138,4 +1133,7 @@ script = ExtResource("12_cover_scr")
 
 [node name="DodgeComponent" type="Node" parent="."]
 script = ExtResource("13_dodge_scr")
+
+[node name="DefenseComponent" type="Node" parent="."]
+script = ExtResource("18_defense_scr")
 

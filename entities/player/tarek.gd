@@ -3,6 +3,9 @@ extends "res://entities/base_character.gd"
 ## Unified Player Controller (Tarek).
 ## Handles Locomotion, Stealth Crouch, Pseudo-Z Jump, Combat, Cargo Push/Pull, and Flashlight.
 
+const GrabHelper := preload("res://components/grab_helper.gd")
+const InteractionHelper := preload("res://components/interaction_helper.gd")
+
 @export var walk_speed: float = 180.0
 @export var sneak_speed: float = 80.0
 @export var sprint_speed: float = 270.0
@@ -33,6 +36,7 @@ var _nearby_interactables: Array[Area2D] = []
 @onready var health: Node = get_node_or_null("HealthComponent")
 @onready var cover: Node2D = get_node_or_null("CoverDetectorComponent")
 @onready var dodge: Node = get_node_or_null("DodgeComponent")
+@onready var defense: Node = get_node_or_null("DefenseComponent")
 
 const BASE_VISUAL_Y: float = -14.0
 const RAY_LENGTH: float = 54.0
@@ -48,15 +52,11 @@ func _ready() -> void:
 	_update_visuals()
 	_check_pending_spawn()
 	if interaction_detector:
-		interaction_detector.area_entered.connect(func(a): if a not in _nearby_interactables: _nearby_interactables.append(a); _set_prompt(a, true))
-		interaction_detector.area_exited.connect(func(a): _nearby_interactables.erase(a); _set_prompt(a, false))
+		interaction_detector.area_entered.connect(func(a): if a not in _nearby_interactables: _nearby_interactables.append(a); InteractionHelper.set_prompt(a, true))
+		interaction_detector.area_exited.connect(func(a): _nearby_interactables.erase(a); InteractionHelper.set_prompt(a, false))
 	var dl = get_node_or_null("/root/DialogueLayer")
 	if dl: dl.dialogue_finished.connect(func():
-		for a in _nearby_interactables: _set_prompt(a, true))
-
-func _set_prompt(a: Area2D, vis: bool) -> void:
-	if is_instance_valid(a) and a.get_parent() and a.get_parent().has_method("set_prompt_visible"):
-		a.get_parent().set_prompt_visible(vis)
+		for a in _nearby_interactables: InteractionHelper.set_prompt(a, true))
 
 func _check_pending_spawn() -> void:
 	var sm = get_node_or_null("/root/SaveManager")
@@ -64,7 +64,6 @@ func _check_pending_spawn() -> void:
 		global_position = sm.pending_spawn_point
 		if not sm.pending_player_data.is_empty(): load_state(sm.pending_player_data)
 		sm.clear_pending_spawn()
-
 func save_state() -> Dictionary:
 	return {"has_flashlight": has_flashlight, "flashlight_on": flashlight_on, "facing_dir": {"x": last_facing_dir.x, "y": last_facing_dir.y}}
 
@@ -79,10 +78,12 @@ func load_state(data: Dictionary) -> void:
 func _character_process(delta: float) -> void:
 	if interaction_cooldown > 0.0: interaction_cooldown -= delta
 	if health and health.is_dead:
+		_stop_defending()
 		if weapon: weapon.set_drawn(false)
 		velocity = Vector2.ZERO; move_and_slide(); return
 	var dl = get_node_or_null("/root/DialogueLayer")
 	if dl and dl.is_dialogue_open:
+		_stop_defending()
 		interaction_cooldown = 0.35
 		velocity = velocity.move_toward(Vector2.ZERO, friction_rate * delta)
 		move_and_slide()
@@ -91,13 +92,17 @@ func _character_process(delta: float) -> void:
 	if dodge and dodge.is_dodging:
 		if weapon: weapon.set_drawn(false)
 		_update_visuals(); move_and_slide(); return
+	if is_defending(): defense.handle_hold_input(Input.is_action_pressed("defend"), get_direction_suffix(), sprite)
 
 	_handle_actions()
-	if combat_mode and weapon:
+	if combat_mode and weapon and not is_defending():
 		weapon.set_drawn(true)
 		weapon.set_aim_target(get_global_mouse_position())
 	_update_z_physics(delta)
 	_apply_movement(delta)
+	if is_defending():
+		defense.process_block(delta, get_direction_suffix(), sprite)
+		if not is_defending() and current_state == State.COMBAT: current_state = State.NORMAL
 	_update_visuals()
 	move_and_slide()
 	if current_state == State.GRAB and is_instance_valid(grabbed_object):
@@ -106,7 +111,10 @@ func _character_process(delta: float) -> void:
 func _handle_actions() -> void:
 	if current_state == State.JUMP: return
 	if has_flashlight and Input.is_action_just_pressed("toggle_flashlight"):
-		if current_state in [State.COMBAT, State.GRAB]: _release_grab(); current_state = State.NORMAL
+		if current_state in [State.COMBAT, State.GRAB]:
+			_release_grab()
+			_stop_defending()
+			current_state = State.NORMAL
 		_toggle_flashlight()
 
 	if interaction_cooldown <= 0.0 and Input.is_action_just_pressed("interact"):
@@ -131,22 +139,21 @@ func _handle_actions() -> void:
 	if Input.is_action_just_pressed("dodge") and dodge:
 		var move_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 		if dodge.try_dodge(move_dir):
+			_stop_defending()
 			if current_state == State.GRAB: _release_grab()
 			if flashlight_on: _toggle_flashlight()
 			return
 	if Input.is_action_just_pressed("reload") and weapon:
 		weapon.reload()
-	if Input.is_action_just_pressed("defend"):
-		if weapon and not combat_mode:
-			_set_combat_mode(true)
-			return
-		elif not combat_mode and current_state != State.COMBAT:
-			current_state = State.COMBAT
-			if flashlight_on: _toggle_flashlight()
-			_play_combat_anim("defend")
-			return
+	if Input.is_action_pressed("defend") and current_state != State.COMBAT and defense:
+		current_state = State.COMBAT
+		if weapon: weapon.set_drawn(false)
+		if flashlight_on: _toggle_flashlight()
+		velocity = Vector2.ZERO
+		defense.start_block(get_direction_suffix(), sprite)
+		return
 	if Input.is_action_just_pressed("attack"):
-		if combat_mode and weapon:
+		if combat_mode and weapon and not is_defending():
 			weapon.set_aim_target(get_global_mouse_position())
 			weapon.try_fire()
 			return
@@ -177,6 +184,12 @@ func _apply_movement(delta: float) -> void:
 			if Input.is_action_pressed("speed_sprint") or Input.is_action_pressed("sprint"):
 				target_speed = sprint_speed
 		State.JUMP: target_speed = walk_speed * 1.05
+
+	if is_defending():
+		if input_vec != Vector2.ZERO: last_facing_dir = _to_cardinal(input_vec)
+		var block_fric := friction_rate * (0.45 if defense.is_in_impact() else 1.0)
+		velocity = velocity.move_toward(Vector2.ZERO, block_fric * delta)
+		return
 
 	if input_vec != Vector2.ZERO and current_state != State.COMBAT:
 		if current_state != State.GRAB: last_facing_dir = _to_cardinal(input_vec)
@@ -221,44 +234,38 @@ func _update_visuals() -> void:
 		elif current_state == State.JUMP: sprite.play("jump_" + dir)
 		else: sprite.play(("flashlight_walk_" if moving else "flashlight_idle_") + dir)
 		return
-
 	match current_state:
 		State.CROUCH: sprite.play(("crouch_walk_" if moving else "crouch_idle_") + dir)
 		State.JUMP: sprite.play("jump_" + dir)
 		State.NORMAL:
-			var idle_anim := "damaged_idle_" if (health and health.is_damaged_state) else "idle_"
-			sprite.play(("walk_" if moving else idle_anim) + dir)
+			sprite.play(("walk_" if moving else ("damaged_idle_" if (health and health.is_damaged_state) else "idle_")) + dir)
+
+func is_defending() -> bool: return defense != null and defense.is_blocking
+func is_defending_against(hit_dir: Vector2) -> bool: return defense != null and defense.can_deflect(hit_dir, last_facing_dir)
+func on_hit_deflected(hit_dir: Vector2) -> void:
+	if defense: defense.trigger_deflect_impact(hit_dir, self, last_facing_dir, get_direction_suffix(), sprite)
+func _stop_defending() -> void:
+	if not is_defending(): return
+	defense.stop_block()
+	if current_state == State.COMBAT: current_state = State.NORMAL
 
 func _play_combat_anim(anim_prefix: String) -> void:
 	velocity = Vector2.ZERO
 	var anim_name := anim_prefix + "_" + get_direction_suffix()
 	if sprite and sprite.sprite_frames:
-		if sprite.sprite_frames.has_animation(anim_name): sprite.play(anim_name); await sprite.animation_finished
-		elif sprite.sprite_frames.has_animation(anim_prefix): sprite.play(anim_prefix); await sprite.animation_finished
+		var played := anim_name if sprite.sprite_frames.has_animation(anim_name) else (anim_prefix if sprite.sprite_frames.has_animation(anim_prefix) else "")
+		if not played.is_empty(): sprite.play(played); await sprite.animation_finished
 	if current_state == State.COMBAT: current_state = State.NORMAL
 
 func _start_grab(target: Node2D) -> void:
-	_release_grab()
-	grabbed_object = target
-	if grabbed_object:
-		_grab_offset = grabbed_object.global_position - global_position
-		if grabbed_object is PhysicsBody2D: add_collision_exception_with(grabbed_object)
-	current_state = State.GRAB
+	_release_grab(); grabbed_object = target
+	if grabbed_object: _grab_offset = GrabHelper.attach(self, grabbed_object); current_state = State.GRAB
 
 func _release_grab() -> void:
-	if is_instance_valid(grabbed_object) and grabbed_object is PhysicsBody2D: remove_collision_exception_with(grabbed_object)
-	grabbed_object = null
+	GrabHelper.detach(self, grabbed_object); grabbed_object = null
 	if current_state == State.GRAB: current_state = State.NORMAL
 
-func _get_pushable_target() -> Node2D:
-	if not interaction_ray: return null
-	interaction_ray.force_raycast_update()
-	if not interaction_ray.is_colliding(): return null
-	var col = interaction_ray.get_collider()
-	if not col: return null
-	if col.is_in_group("pushable"): return col as Node2D
-	var p = col.get_parent()
-	return (p as Node2D) if p and p.is_in_group("pushable") else null
+func _get_pushable_target() -> Node2D: return GrabHelper.find_pushable(interaction_ray)
 
 func _set_combat_mode(active: bool) -> void:
 	combat_mode = active
@@ -288,11 +295,4 @@ func _update_light_orientation() -> void:
 
 func _interact_with_target() -> void:
 	_nearby_interactables = _nearby_interactables.filter(func(a): return is_instance_valid(a))
-	for a in _nearby_interactables:
-		var target = a.get_parent() if a.get_parent().has_method("interact") else a
-		if target.has_method("interact"): target.interact(self); return
-	if interaction_ray and interaction_ray.is_colliding():
-		var col = interaction_ray.get_collider()
-		if col:
-			var target = col.get_parent() if (col is Area2D and col.get_parent().has_method("interact")) else col
-			if target.has_method("interact"): target.interact(self)
+	InteractionHelper.interact_nearest(self, _nearby_interactables, interaction_ray)

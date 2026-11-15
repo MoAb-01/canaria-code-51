@@ -105,13 +105,43 @@ func end_peek() -> void:
 	_peek_timer = 0.0
 	cover_state_changed.emit(is_crouching, is_peeking, is_near_cover())
 
+## Returns true ONLY when crouched (not peeking) directly behind a "low_cover" collider
+## physically blocking the incoming shot's line of fire (never blocks standing, flank, or rear shots).
 func is_protected_from(hit_dir: Vector2) -> bool:
 	if not is_crouching or is_peeking or not is_near_cover():
 		return false
 	if hit_dir == Vector2.ZERO:
-		return true
+		return false
+	var cover_node := get_nearest_cover()
+	if not cover_node or not cover_node.is_in_group("low_cover"):
+		return false
 	var cover_dir := get_cover_direction()
 	if cover_dir == Vector2.ZERO:
 		return false
-	# Bullet travels toward character; if opposite to cover_dir, cover is between shooter and character
-	return hit_dir.normalized().dot(cover_dir) < 0.35
+	# Bullet travels toward character; require incoming vector to oppose cover_dir (~frontal arc)
+	if hit_dir.normalized().dot(cover_dir) >= -0.5:
+		return false
+	return _ray_hits_low_cover(cover_node, -hit_dir.normalized())
+
+
+func _ray_hits_low_cover(cover_node: Node2D, to_shooter: Vector2) -> bool:
+	var owner_node := get_parent() as Node2D
+	if not owner_node or not owner_node.is_inside_tree():
+		return true
+	var space := owner_node.get_world_2d().direct_space_state
+	if not space:
+		return true
+	var query := PhysicsRayQueryParameters2D.create(
+		owner_node.global_position,
+		owner_node.global_position + to_shooter * 80.0
+	)
+	query.collision_mask = cover_node.collision_layer if cover_node is CollisionObject2D else 3
+	query.collide_with_bodies = true
+	query.collide_with_areas = cover_node is Area2D
+	if owner_node is CollisionObject2D:
+		query.exclude = [owner_node.get_rid()]
+	var result := space.intersect_ray(query)
+	if result.is_empty():
+		return false
+	var collider: Object = result.collider
+	return collider == cover_node or (collider is Node and (collider as Node).is_in_group("low_cover"))

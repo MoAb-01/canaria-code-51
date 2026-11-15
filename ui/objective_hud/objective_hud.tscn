@@ -1,0 +1,117 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://ui/objective_hud/objective_hud.gd" id="1_hud_scr"]
+[ext_resource type="FontFile" path="res://assets/fonts/PressStart2P-Regular.ttf" id="2_pixel_font"]
+
+[sub_resource type="Theme" id="Theme_objective_hud"]
+default_base_scale = 2.0
+default_font = ExtResource("2_pixel_font")
+default_font_size = 12
+
+[sub_resource type="SystemFont" id="SystemFont_symbols"]
+font_names = PackedStringArray("Segoe UI Symbol", "Noto Sans Symbols 2", "DejaVu Sans")
+antialiasing = 0
+hinting = 0
+subpixel_positioning = 0
+
+[sub_resource type="FontVariation" id="FontVariation_tag"]
+base_font = ExtResource("2_pixel_font")
+spacing_glyph = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_outline"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+draw_center = false
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.0196078, 0.0392157, 0.0705882, 1)
+expand_margin_left = 1.0
+expand_margin_top = 1.0
+expand_margin_right = 1.0
+expand_margin_bottom = 1.0
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_frame"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.039, 0.063, 0.102, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.819608, 0.4, 1)
+shadow_color = Color(0, 0, 0, 0.65)
+shadow_size = 8
+shadow_offset = Vector2(0, 4)
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 12.0
+bg_color = Color(1, 0.82, 0.4, 0.08)
+border_width_bottom = 2
+border_color = Color(1, 0.819608, 0.4, 1)
+anti_aliasing = false
+
+[node name="ObjectiveHud" type="PanelContainer"]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -352.0
+offset_top = 32.0
+offset_right = -32.0
+offset_bottom = 32.0
+grow_horizontal = 0
+mouse_filter = 2
+theme = SubResource("Theme_objective_hud")
+theme_override_styles/panel = SubResource("StyleBoxFlat_outline")
+script = ExtResource("1_hud_scr")
+task_font = ExtResource("2_pixel_font")
+checkbox_font = SubResource("SystemFont_symbols")
+
+[node name="Frame" type="PanelContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_frame")
+
+[node name="Layout" type="VBoxContainer" parent="Frame"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="HudHeader" type="PanelContainer" parent="Frame/Layout"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_header")
+
+[node name="HudTag" type="Label" parent="Frame/Layout/HudHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.819608, 0.4, 1)
+theme_override_fonts/font = SubResource("FontVariation_tag")
+theme_override_font_sizes/font_size = 12
+text = "OBJECTIVE"
+uppercase = true
+vertical_alignment = 1
+
+[node name="HudBody" type="MarginContainer" parent="Frame/Layout"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 16
+
+[node name="TaskList" type="VBoxContainer" parent="Frame/Layout/HudBody"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12

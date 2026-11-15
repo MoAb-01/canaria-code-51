@@ -24,22 +24,27 @@ func _ready() -> void:
 		if not _target_sprite:
 			_target_sprite = get_parent().get_node_or_null("Sprite2D") as CanvasItem
 
-func take_damage(amount: float, hit_dir: Vector2 = Vector2.ZERO, _source: Node = null) -> bool:
+## Accepts 360-degree damage from all angles unless actively dodging (i-frames)
+## or crouched behind a blocking "low_cover" barrier.
+func take_damage(amount: float, hit_dir: Vector2 = Vector2.ZERO, source: Node = null) -> bool:
 	if is_dead or amount <= 0.0:
 		return false
 
 	var parent := get_parent()
-	if _is_protected(parent, hit_dir):
+	var resolved_dir := _resolve_hit_direction(parent, hit_dir, source)
+	if _is_protected(parent, resolved_dir):
 		_spawn_deflect_spark(parent)
+		if _is_blocked_by_defend(parent, resolved_dir) and parent and parent.has_method("on_hit_deflected"):
+			parent.on_hit_deflected(resolved_dir)
 		return false
 
 	current_health = maxf(0.0, current_health - amount)
-	_apply_knockback(parent, hit_dir)
+	_apply_knockback(parent, resolved_dir)
 	_play_hit_flash()
 
 	var eb := get_node_or_null("/root/EventBus")
 	if eb and eb.has_signal("entity_damaged"):
-		eb.entity_damaged.emit(parent, amount, current_health, max_health, hit_dir)
+		eb.entity_damaged.emit(parent, amount, current_health, max_health, resolved_dir)
 
 	if not is_damaged_state and current_health > 0.0 and current_health <= max_health * 0.5:
 		_enter_damaged_state(parent)
@@ -48,14 +53,39 @@ func take_damage(amount: float, hit_dir: Vector2 = Vector2.ZERO, _source: Node =
 		_die(parent, eb)
 	return true
 
+
+func _resolve_hit_direction(parent: Node, hit_dir: Vector2, source: Node) -> Vector2:
+	if hit_dir != Vector2.ZERO:
+		return hit_dir.normalized()
+	if parent is Node2D and source is Node2D:
+		var delta: Vector2 = (parent as Node2D).global_position - (source as Node2D).global_position
+		if delta != Vector2.ZERO:
+			return delta.normalized()
+	return Vector2.ZERO
+
+
+func _is_blocked_by_defend(parent: Node, hit_dir: Vector2) -> bool:
+	if not parent:
+		return false
+	if parent.has_method("is_defending_against"):
+		return parent.is_defending_against(hit_dir)
+	return parent.has_method("is_defending") and parent.is_defending()
+
+
 func _is_protected(parent: Node, hit_dir: Vector2) -> bool:
 	if not parent:
 		return false
+	if _is_blocked_by_defend(parent, hit_dir):
+		return true
 	for child in parent.get_children():
 		if child.has_method("is_invulnerable") and child.is_invulnerable():
 			return true
-		if child.has_method("is_protected_from") and child.is_protected_from(hit_dir):
-			return true
+		if child is CoverDetectorComponent and child.is_crouching and not child.is_peeking:
+			if child.is_protected_from(hit_dir):
+				return true
+		elif child.has_method("is_protected_from") and child.get("is_crouching") == true:
+			if child.is_protected_from(hit_dir):
+				return true
 	return false
 
 func _apply_knockback(parent: Node, hit_dir: Vector2) -> void:

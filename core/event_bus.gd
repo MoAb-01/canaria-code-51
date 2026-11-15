@@ -33,6 +33,10 @@ signal game_loaded(slot: int)
 # UI Notification Signals
 signal notification_displayed(message: String, duration: float)
 
+# Objective & Quest Tracking Signals
+signal objectives_updated(tasks: Array[Dictionary])
+signal objective_task_completed(task_id: String)
+
 # Flow & Settings Signals
 signal screen_change_requested(target_scene_path: String)
 signal settings_changed(setting_key: String, value: Variant)

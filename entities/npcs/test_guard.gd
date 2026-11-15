@@ -57,3 +57,6 @@ func on_entity_died() -> void:
 	var col := get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if col:
 		col.set_deferred("disabled", true)
+	var hurtbox := get_node_or_null("HurtboxComponent")
+	if hurtbox and hurtbox.has_method("set_active"):
+		hurtbox.set_active(false)
