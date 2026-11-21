@@ -1,130 +1,76 @@
 extends CanvasLayer
-## DialogueLayer — Global UI Autoload for character conversations, NPC interactions,
-## and narrative prompts with 16-bit visual styling.
+## DialogueLayer — Global UI Autoload delegating presentation & typewriter pacing
+## to res://ui/dialogue_box/dialogue_box.tscn with full backward compatibility.
 
 signal dialogue_started(speaker_name: String)
 signal dialogue_advanced(line_index: int, total_lines: int)
 signal dialogue_finished
 
-var is_dialogue_open: bool = false
-var _input_cooldown: float = 0.0
-var _current_lines: Array[String] = []
-var _current_index: int = 0
-var _speaker_name: String = ""
+var is_dialogue_open: bool:
+	get:
+		return dialogue_box != null and dialogue_box.is_open
 
-@onready var panel: Control = $Panel
-@onready var portrait_rect: TextureRect = $Panel/Margin/HBox/PortraitFrame/Portrait
-@onready var portrait_frame: Control = $Panel/Margin/HBox/PortraitFrame
-@onready var name_label: Label = $Panel/Margin/HBox/TextVBox/NameLabel
-@onready var content_label: Label = $Panel/Margin/HBox/TextVBox/ContentLabel
-@onready var prompt_label: Label = $Panel/Margin/HBox/TextVBox/PromptLabel
+@onready var dialogue_box: DialogueBox = $DialogueBox
+
+var _active_lines: Array[String] = []
 
 func _ready() -> void:
 	layer = 100
 	visible = false
-	_bind_nodes()
-	if panel:
-		panel.visible = false
+	if dialogue_box:
+		dialogue_box.dialogue_started.connect(_on_box_started)
+		dialogue_box.dialogue_advanced.connect(_on_box_advanced)
+		dialogue_box.dialogue_finished.connect(_on_box_finished)
 
-func _process(delta: float) -> void:
-	if _input_cooldown > 0.0:
-		_input_cooldown -= delta
+	var eb := get_node_or_null("/root/EventBus")
+	if eb and eb.has_signal("dialogue_requested"):
+		eb.dialogue_requested.connect(_on_dialogue_requested)
 
-func _bind_nodes() -> void:
-	if not panel:
-		panel = get_node_or_null("Panel")
-	if not portrait_rect:
-		portrait_rect = find_child("Portrait", true, false)
-	if not portrait_frame:
-		portrait_frame = find_child("PortraitFrame", true, false)
-	if not name_label:
-		name_label = find_child("NameLabel", true, false)
-	if not content_label:
-		content_label = find_child("ContentLabel", true, false)
-	if not prompt_label:
-		prompt_label = find_child("PromptLabel", true, false)
-
-func play_dialogue(speaker: String, portrait_tex: Texture2D, lines: Array[String]) -> void:
-	if lines.is_empty():
+func play_dialogue(speaker: String, portrait_tex: Texture2D, lines: Array) -> void:
+	if lines.is_empty() or not dialogue_box:
 		return
-
-	_bind_nodes()
-
-	_speaker_name = speaker
-	_current_lines = lines.duplicate()
-	_current_index = 0
-	is_dialogue_open = true
-	_input_cooldown = 0.25 # Ignore keypress that triggered interaction
-
-	# Set speaker name
-	if name_label:
-		name_label.text = speaker.to_upper()
-
-	# Set portrait if available, otherwise hide portrait frame
-	if portrait_frame:
-		if portrait_tex and portrait_rect:
-			portrait_rect.texture = portrait_tex
-			portrait_frame.visible = true
-		else:
-			portrait_frame.visible = false
-
-	_show_current_line()
+	_active_lines.clear()
+	for entry in lines:
+		_active_lines.append(String(entry))
 	visible = true
-	if panel:
-		panel.visible = true
-	dialogue_started.emit(speaker)
+	dialogue_box.play_dialogue(speaker, portrait_tex, _active_lines)
 
-func _show_current_line() -> void:
-	if _current_index < _current_lines.size():
-		if content_label:
-			content_label.text = _current_lines[_current_index]
-		var is_last := (_current_index == _current_lines.size() - 1)
-		if prompt_label:
-			prompt_label.text = "▶ [E / ENTER / SPACE] CLOSE" if is_last else "▶ [E / ENTER / SPACE] NEXT"
-		dialogue_advanced.emit(_current_index, _current_lines.size())
+func play_narration(lines: Array, speaker: String = "") -> void:
+	play_dialogue(speaker, null, lines)
 
 func advance_dialogue() -> void:
-	if not is_dialogue_open:
-		return
-
-	_current_index += 1
-	if _current_index < _current_lines.size():
-		_input_cooldown = 0.15
-		_show_current_line()
-	else:
-		close_dialogue()
+	if dialogue_box:
+		dialogue_box.advance_or_complete()
 
 func close_dialogue() -> void:
-	is_dialogue_open = false
-	_input_cooldown = 0.2
-	_current_lines.clear()
-	_current_index = 0
-	visible = false
-	if panel:
-		panel.visible = false
-	dialogue_finished.emit()
+	if dialogue_box:
+		dialogue_box.close_dialogue()
 
 func _input(event: InputEvent) -> void:
-	if not is_dialogue_open:
+	if not is_dialogue_open or not dialogue_box:
 		return
-
-	if not (event is InputEventKey):
-		return
-
-	if not event.pressed or event.is_echo():
-		return
-
-	# ESC immediately cancels/closes dialogue
-	if event.keycode == KEY_ESCAPE:
-		close_dialogue()
+	if dialogue_box.handle_advance_input(event):
 		get_viewport().set_input_as_handled()
-		return
 
-	# Debounce check for advancing dialogue
-	if _input_cooldown > 0.0:
-		return
+func _on_dialogue_requested(speaker_name: String, lines: Array[String], portrait: Texture2D) -> void:
+	play_dialogue(speaker_name, portrait, lines)
 
-	# Supported advance keys: E, Enter, Keypad Enter, Space
-	if event.keycode == KEY_E or event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER or event.keycode == KEY_SPACE:
-		advance_dialogue()
-		get_viewport().set_input_as_handled()
+func _on_box_started(speaker_name: String) -> void:
+	dialogue_started.emit(speaker_name)
+	var eb := get_node_or_null("/root/EventBus")
+	if eb and eb.has_signal("dialogue_started"):
+		eb.dialogue_started.emit(speaker_name, _active_lines)
+
+func _on_box_advanced(line_index: int, total_lines: int) -> void:
+	dialogue_advanced.emit(line_index, total_lines)
+	var eb := get_node_or_null("/root/EventBus")
+	if eb and eb.has_signal("dialogue_line_advanced"):
+		eb.dialogue_line_advanced.emit(line_index, total_lines)
+
+func _on_box_finished() -> void:
+	visible = false
+	_active_lines.clear()
+	dialogue_finished.emit()
+	var eb := get_node_or_null("/root/EventBus")
+	if eb and eb.has_signal("dialogue_finished"):
+		eb.dialogue_finished.emit()

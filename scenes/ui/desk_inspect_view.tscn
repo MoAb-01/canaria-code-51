@@ -2,42 +2,7 @@
 
 [ext_resource type="Script" path="res://scenes/ui/desk_inspect_view.gd" id="1_inspect_scr"]
 [ext_resource type="Texture2D" path="res://assets/textures/office/desk_pov.png" id="2_desk_pov"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_caption"]
-bg_color = Color(0.06, 0.07, 0.1, 0.9)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.76, 0.64, 0.42, 0.85)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_back_normal"]
-bg_color = Color(0.09, 0.1, 0.14, 0.88)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.76, 0.64, 0.42, 0.85)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_back_hover"]
-bg_color = Color(0.18, 0.16, 0.14, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1.0, 0.86, 0.48, 1.0)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+[ext_resource type="PackedScene" path="res://ui/dialogue_box/dialogue_box.tscn" id="3_dialogue_box"]
 
 [node name="DeskInspectView" type="CanvasLayer"]
 layer = 30
@@ -58,7 +23,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.03, 0.03, 0.04, 1)
+color = Color(0.0509804, 0.0392157, 0.0352941, 1)
 
 [node name="DeskStage" type="AspectRatioContainer" parent="Root"]
 layout_mode = 1
@@ -116,61 +81,31 @@ anchor_bottom = 0.92
 flat = true
 tooltip_text = "Gold Service Badge"
 
-[node name="CaptionPanel" type="PanelContainer" parent="Root"]
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 240.0
-offset_top = -112.0
-offset_right = -240.0
-offset_bottom = -14.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_styles/panel = SubResource("StyleBox_caption")
-
-[node name="Margin" type="MarginContainer" parent="Root/CaptionPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 10
-
-[node name="VBox" type="VBoxContainer" parent="Root/CaptionPanel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="TitleLabel" type="Label" parent="Root/CaptionPanel/Margin/VBox"]
-texture_filter = 2
-layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.82, 0.5, 1)
-theme_override_font_sizes/font_size = 20
-text = "Tarek's Desk"
-
-[node name="BodyLabel" type="Label" parent="Root/CaptionPanel/Margin/VBox"]
-texture_filter = 2
-layout_mode = 2
-theme_override_colors/font_color = Color(0.92, 0.92, 0.94, 1)
-theme_override_font_sizes/font_size = 17
-autowrap_mode = 2
-text = "Click an item on the desk to inspect it."
+[node name="DialogueBox" parent="Root" instance=ExtResource("3_dialogue_box")]
 
 [node name="BackButton" type="Button" parent="Root"]
-texture_filter = 2
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -168.0
-offset_top = 28.0
-offset_right = -32.0
-offset_bottom = 78.0
+offset_left = -84.0
+offset_top = 18.0
+offset_right = -26.0
+offset_bottom = 54.0
 grow_horizontal = 0
+focus_mode = 0
 mouse_default_cursor_shape = 2
-theme_override_colors/font_color = Color(0.96, 0.91, 0.78, 1)
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBox_back_normal")
-theme_override_styles/hover = SubResource("StyleBox_back_hover")
-theme_override_styles/pressed = SubResource("StyleBox_back_hover")
-text = "[Back]"
+flat = true
+
+[node name="BackLabel" type="Label" parent="Root/BackButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 28
+text = "Back"
+horizontal_alignment = 2
+vertical_alignment = 1

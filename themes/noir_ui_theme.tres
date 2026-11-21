@@ -1,0 +1,40 @@
+[gd_resource type="Theme" load_steps=3 format=3]
+
+[ext_resource type="FontFile" uid="uid://ot32sl8tn32o" path="res://assets/fonts/VT323-Regular.ttf" id="1_vt323"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_btn"]
+
+[resource]
+default_font = ExtResource("1_vt323")
+default_font_size = 28
+Button/colors/font_color = Color(0.968627, 0.945098, 0.901961, 1)
+Button/colors/font_disabled_color = Color(0.968627, 0.945098, 0.901961, 0.5)
+Button/colors/font_focus_color = Color(0.968627, 0.945098, 0.901961, 1)
+Button/colors/font_hover_color = Color(0.968627, 0.945098, 0.901961, 1)
+Button/colors/font_hover_pressed_color = Color(0.968627, 0.945098, 0.901961, 1)
+Button/colors/font_pressed_color = Color(0.968627, 0.945098, 0.901961, 1)
+Button/styles/disabled = SubResource("StyleBoxEmpty_btn")
+Button/styles/focus = SubResource("StyleBoxEmpty_btn")
+Button/styles/hover = SubResource("StyleBoxEmpty_btn")
+Button/styles/normal = SubResource("StyleBoxEmpty_btn")
+Button/styles/pressed = SubResource("StyleBoxEmpty_btn")
+Label/colors/font_color = Color(0.968627, 0.945098, 0.901961, 1)
+Label/colors/font_shadow_color = Color(0, 0, 0, 0.96)
+Label/constants/shadow_offset_x = 0
+Label/constants/shadow_offset_y = 2
+Label/constants/shadow_outline_size = 3
+LinkButton/colors/font_color = Color(0.968627, 0.945098, 0.901961, 1)
+LinkButton/colors/font_disabled_color = Color(0.968627, 0.945098, 0.901961, 0.5)
+LinkButton/colors/font_focus_color = Color(0.968627, 0.945098, 0.901961, 1)
+LinkButton/colors/font_hover_color = Color(0.968627, 0.945098, 0.901961, 1)
+LinkButton/colors/font_pressed_color = Color(0.968627, 0.945098, 0.901961, 1)
+LinkButton/styles/disabled = SubResource("StyleBoxEmpty_btn")
+LinkButton/styles/focus = SubResource("StyleBoxEmpty_btn")
+LinkButton/styles/hover = SubResource("StyleBoxEmpty_btn")
+LinkButton/styles/normal = SubResource("StyleBoxEmpty_btn")
+LinkButton/styles/pressed = SubResource("StyleBoxEmpty_btn")
+RichTextLabel/colors/default_color = Color(0.968627, 0.945098, 0.901961, 1)
+RichTextLabel/colors/font_shadow_color = Color(0, 0, 0, 0.96)
+RichTextLabel/constants/shadow_offset_x = 0
+RichTextLabel/constants/shadow_offset_y = 2
+RichTextLabel/constants/shadow_outline_size = 3

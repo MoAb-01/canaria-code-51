@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 EventBus="*res://core/event_bus.gd"
 AudioManager="*res://core/audio_manager.gd"
+UiTextGuard="*res://core/ui_text_guard.gd"
 GameState="*res://core/game_state.gd"
 ObjectiveManager="*res://core/objective_manager.gd"
 SaveManager="*res://core/save_manager.gd"
@@ -33,6 +34,10 @@ window/size/mode=4
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
+
+[gui]
+
+theme/custom="res://themes/noir_ui_theme.tres"
 
 [input]
 
