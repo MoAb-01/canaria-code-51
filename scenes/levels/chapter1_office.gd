@@ -19,6 +19,8 @@ const STAND_OUT_POS := Vector2(-46.0, 18.0)
 @onready var intro_black: ColorRect = $IntroOverlay/BlackScreen
 @onready var intro_title: Label = $IntroOverlay/ChapterLabel
 @onready var desk_inspect: DeskInspectView = $DeskInspectView
+@onready var cabinet_inspect: CabinetInspectView = $CabinetInspectView
+@onready var filing_cabinet: FilingCabinet = $FilingCabinet
 
 var _intro_active: bool = true
 var _is_seated: bool = true
@@ -41,6 +43,11 @@ func _ready() -> void:
 		doorway_trigger.body_entered.connect(_on_doorway_entered)
 	if desk_inspect:
 		desk_inspect.inspect_closed.connect(_on_inspect_closed)
+	if cabinet_inspect:
+		cabinet_inspect.inspect_closed.connect(_on_inspect_closed)
+	if filing_cabinet:
+		filing_cabinet.focus_changed.connect(func(_f): _update_desk_prompt())
+		filing_cabinet.inspect_requested.connect(_on_cabinet_inspect_opened)
 	_play_intro_cutscene()
 
 func _setup_seated_tarek() -> void:
@@ -88,6 +95,8 @@ func _process(_delta: float) -> void:
 		return
 	if desk_inspect and desk_inspect.is_open:
 		return
+	if cabinet_inspect and cabinet_inspect.is_open:
+		return
 
 	if _is_seated:
 		var move_vec := Input.get_vector("move_left", "move_right", "move_up", "move_down")
@@ -95,8 +104,11 @@ func _process(_delta: float) -> void:
 			_stand_up_from_desk()
 			return
 
-	if (_is_seated or _player_near_desk) and Input.is_action_just_pressed("interact"):
-		_open_desk_inspect()
+	if Input.is_action_just_pressed("interact"):
+		if filing_cabinet and filing_cabinet.is_player_near and not _is_seated:
+			filing_cabinet.interact(tarek)
+		elif _is_seated or _player_near_desk:
+			_open_desk_inspect()
 
 func _stand_up_from_desk() -> void:
 	if not _is_seated or _is_standing_up or not tarek:
@@ -158,18 +170,40 @@ func _on_desk_clicked(_viewport: Node, event: InputEvent, _shape_idx: int) -> vo
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_open_desk_inspect()
 
+func _on_cabinet_inspect_opened() -> void:
+	_set_player_locked(true)
+	if prompt_label:
+		prompt_label.visible = false
+
 func _update_desk_prompt() -> void:
 	if not prompt_label:
 		return
-	var show := (not _intro_active) and (not _is_standing_up) and (not (desk_inspect and desk_inspect.is_open)) and (_is_seated or _player_near_desk)
-	prompt_label.visible = show
-	if show:
+	var overlay_open := (desk_inspect != null and desk_inspect.is_open) or (cabinet_inspect != null and cabinet_inspect.is_open)
+	if _intro_active or _is_standing_up or overlay_open:
+		prompt_label.visible = false
+		return
+	if filing_cabinet and filing_cabinet.is_player_near and not _is_seated:
+		prompt_label.text = "[E] Inspect Filing Cabinet"
+		prompt_label.visible = true
 		_sync_prompt_position()
+	elif _is_seated or _player_near_desk:
+		prompt_label.text = "[E] Inspect Desk"
+		prompt_label.visible = true
+		_sync_prompt_position()
+	else:
+		prompt_label.visible = false
 
 func _sync_prompt_position() -> void:
-	if not prompt_label or not prompt_label.visible or not desk_prompt_anchor:
+	if not prompt_label or not prompt_label.visible:
 		return
-	prompt_label.global_position = get_viewport().get_canvas_transform() * desk_prompt_anchor.global_position - Vector2(prompt_label.size.x * 0.5, 24.0)
+	var anchor_pos := Vector2.ZERO
+	if filing_cabinet and filing_cabinet.is_player_near and not _is_seated:
+		anchor_pos = filing_cabinet.get_prompt_world_position()
+	elif desk_prompt_anchor:
+		anchor_pos = desk_prompt_anchor.global_position
+	else:
+		return
+	prompt_label.global_position = get_viewport().get_canvas_transform() * anchor_pos - Vector2(prompt_label.size.x * 0.5, 24.0)
 
 func _on_doorway_entered(body: Node) -> void:
 	if body == tarek and not _intro_active and not _is_seated:

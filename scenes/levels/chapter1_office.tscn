@@ -5,6 +5,8 @@
 [ext_resource type="Texture2D" path="res://assets/textures/office/office_desk.png" id="3_desk_tex"]
 [ext_resource type="PackedScene" path="res://entities/player/tarek.tscn" id="4_tarek_scn"]
 [ext_resource type="PackedScene" path="res://scenes/ui/desk_inspect_view.tscn" id="5_inspect_scn"]
+[ext_resource type="Script" path="res://components/filing_cabinet.gd" id="6_cabinet_scr"]
+[ext_resource type="PackedScene" path="res://screens/cabinet_inspect/cabinet_inspect_view.tscn" id="7_cab_inspect_scn"]
 
 [sub_resource type="RectangleShape2D" id="Rect_wall_top"]
 size = Vector2(540, 40)
@@ -32,6 +34,9 @@ size = Vector2(228, 148)
 
 [sub_resource type="RectangleShape2D" id="Rect_doorway"]
 size = Vector2(68, 42)
+
+[sub_resource type="RectangleShape2D" id="Rect_cabinet_interact"]
+size = Vector2(144, 144)
 
 [node name="Chapter1Office" type="Node2D"]
 script = ExtResource("1_office_scr")
@@ -93,6 +98,23 @@ collision_mask = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DoorwayTrigger"]
 shape = SubResource("Rect_doorway")
+
+[node name="FilingCabinet" type="Node2D" parent="."]
+position = Vector2(-212, -52)
+script = ExtResource("6_cabinet_scr")
+inspect_view_path = NodePath("../CabinetInspectView")
+
+[node name="InteractionArea" type="Area2D" parent="FilingCabinet"]
+collision_layer = 4
+collision_mask = 1
+input_pickable = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FilingCabinet/InteractionArea"]
+position = Vector2(6, 10)
+shape = SubResource("Rect_cabinet_interact")
+
+[node name="PromptAnchor" type="Marker2D" parent="FilingCabinet"]
+position = Vector2(0, -68)
 
 [node name="Entities" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -200,3 +222,5 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="DeskInspectView" parent="." instance=ExtResource("5_inspect_scn")]
+
+[node name="CabinetInspectView" parent="." instance=ExtResource("7_cab_inspect_scn")]

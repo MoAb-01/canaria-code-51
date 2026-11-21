@@ -51,3 +51,6 @@ signal entity_died(entity: Node)
 # Audio Signals
 signal sfx_requested(sfx_name: String)
 
+# Inventory & Item Signals
+signal item_collected(item_id: String)
+

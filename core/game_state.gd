@@ -7,6 +7,7 @@ var world_state: Dictionary = {}
 var current_level: String = ""
 var player_spawn_point: Vector2 = Vector2.ZERO
 var has_flashlight: bool = true
+var has_pistol: bool = false
 var is_cutscene_active: bool = false
 
 func _ready() -> void:
@@ -43,6 +44,7 @@ func to_dict() -> Dictionary:
 		"current_level": current_level,
 		"player_spawn_point": {"x": player_spawn_point.x, "y": player_spawn_point.y},
 		"has_flashlight": has_flashlight,
+		"has_pistol": has_pistol,
 		"is_cutscene_active": is_cutscene_active
 	}
 
@@ -58,6 +60,7 @@ func from_dict(data: Dictionary) -> void:
 	elif sp is Vector2:
 		player_spawn_point = sp
 	has_flashlight = bool(data.get("has_flashlight", true))
+	has_pistol = bool(data.get("has_pistol", false))
 	is_cutscene_active = bool(data.get("is_cutscene_active", false))
 
 func _ensure_global_input_actions() -> void:

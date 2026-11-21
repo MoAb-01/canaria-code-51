@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://ui/dialogue_box/dialogue_box.gd" id="1_dlg_box_scr"]
+[ext_resource type="Theme" path="res://themes/noir_ui_theme.tres" id="2_noir_theme"]
 
 [sub_resource type="Gradient" id="Gradient_dlg_bg"]
 offsets = PackedFloat32Array(0, 0.52, 1)
@@ -35,6 +36,7 @@ offset_top = -220.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
+theme = ExtResource("2_noir_theme")
 script = ExtResource("1_dlg_box_scr")
 
 [node name="GradientBg" type="TextureRect" parent="."]

@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scenes/ui/desk_inspect_view.gd" id="1_inspect_scr"]
 [ext_resource type="Texture2D" path="res://assets/textures/office/desk_pov.png" id="2_desk_pov"]
 [ext_resource type="PackedScene" path="res://ui/dialogue_box/dialogue_box.tscn" id="3_dialogue_box"]
+[ext_resource type="Theme" path="res://themes/noir_ui_theme.tres" id="4_noir_theme"]
 
 [node name="DeskInspectView" type="CanvasLayer"]
 layer = 30
@@ -15,6 +16,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("4_noir_theme")
 
 [node name="Backdrop" type="ColorRect" parent="Root"]
 layout_mode = 1
