@@ -48,3 +48,6 @@ signal weapon_fired(shooter: Node, origin: Vector2, direction: Vector2, noise_ra
 signal entity_damaged(entity: Node, amount: float, current_hp: float, max_hp: float, hit_direction: Vector2)
 signal entity_died(entity: Node)
 
+# Audio Signals
+signal sfx_requested(sfx_name: String)
+

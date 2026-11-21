@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tarek Sprite Workbench — 32×40 Pixel Editor</title>
+  <style>
+    :root {
+      --bg: #0f1520;
+      --panel: #172030;
+      --border: #2c3b55;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #ffd166;
+      --cyan: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 290px 1fr 310px;
+      gap: 14px;
+      align-items: start;
+      max-width: 1260px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      letter-spacing: 0.8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+    }
+    .row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; align-items: center; }
+    button {
+      background: #223047;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 5px 9px;
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    button:hover { background: #2c3f5e; }
+    button.active {
+      background: #334e75;
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: bold;
+    }
+    button.primary {
+      background: #ffd166;
+      color: #0f1520;
+      border-color: #ffd166;
+      font-weight: bold;
+    }
+    button.primary:hover { background: #ffe08a; }
+    .canvas-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    canvas#editor {
+      border: 2px solid var(--border);
+      background-image:
+        linear-gradient(45deg, #1b2538 25%, transparent 25%),
+        linear-gradient(-45deg, #1b2538 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #1b2538 75%),
+        linear-gradient(-45deg, transparent 75%, #1b2538 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+      background-color: #131b2b;
+      image-rendering: pixelated;
+      cursor: crosshair;
+    }
+    .palette-group { margin-bottom: 8px; }
+    .palette-label { font-size: 10px; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; }
+    .swatches { display: flex; flex-wrap: wrap; gap: 4px; }
+    .swatch {
+      width: 22px;
+      height: 22px;
+      border: 2px solid #0b1019;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .swatch.selected { border-color: var(--accent); transform: scale(1.1); }
+    label { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: 11px; cursor: pointer; }
+    input[type="number"] {
+      width: 56px;
+      background: #0f1520;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 3px 5px;
+      font-family: inherit;
+      font-size: 11px;
+    }
+    .meta-box {
+      background: #0f1520;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--muted);
+      white-space: pre-wrap;
+    }
+    .status { font-size: 11px; color: #72efdd; min-height: 16px; }
+  </style>
+</head>
+<body>
+  <h1>TAREK 32×40 PIXEL WORKBENCH — BASE + TWO-HANDED PISTOL OVERLAY</h1>
+  <div class="layout">
+    <!-- Left: Animation & View Controls -->
+    <div class="panel">
+      <h2>Animation & Direction</h2>
+      <div class="palette-label">State</div>
+      <div class="row" id="state-btns"></div>
+      <div class="palette-label">Direction</div>
+      <div class="row" id="dir-btns"></div>
+      <div class="row">
+        <label><input type="checkbox" id="chk-flip" /> Flip-H (Left)</label>
+        <label><input type="checkbox" id="chk-grid" checked /> Pixel Grid</label>
+        <label><input type="checkbox" id="chk-markers" checked /> Crosshairs</label>
+      </div>
+
+      <h2>Playback</h2>
+      <div class="row">
+        <button id="btn-play" class="primary">Play</button>
+        <button id="btn-prev">&lt; Prev</button>
+        <button id="btn-next">Next &gt;</button>
+        <span id="frame-label" style="color:var(--accent);">1 / 1</span>
+      </div>
+      <div class="row">
+        <span>FPS:</span>
+        <input type="number" id="inp-fps" min="1" max="30" step="1" value="8" />
+        <label><input type="checkbox" id="chk-base-visible" checked /> Show Base Body</label>
+      </div>
+
+      <h2>Muzzle & Shoulder</h2>
+      <div class="row">
+        <span>Muzzle X:</span><input type="number" id="inp-mx" step="1" />
+        <span>Y:</span><input type="number" id="inp-my" step="1" />
+      </div>
+      <div class="meta-box" id="offset-readout"></div>
+    </div>
+
+    <!-- Center: 8x Zoomed 32x40 Canvas -->
+    <div class="panel canvas-wrap">
+      <div class="row" style="justify-content:space-between;width:100%;">
+        <span id="hover-coord" style="color:var(--muted);">Pixel: (-, -)</span>
+        <div class="row" style="margin:0;">
+          <button id="btn-tool-brush" class="active">✏️ Brush</button>
+          <button id="btn-tool-erase">🧹 Eraser</button>
+          <button id="btn-undo">Undo (Ctrl+Z)</button>
+          <button id="btn-clear-ov">Clear Overlay</button>
+          <button id="btn-reset-ov">Reset Defaults</button>
+        </div>
+      </div>
+      <canvas id="editor" width="256" height="320"></canvas>
+      <div style="color:var(--muted);font-size:11px;text-align:center;">
+        Left-click: Paint 1px overlay &nbsp;|&nbsp; Right-click: Erase 1px overlay &nbsp;|&nbsp; Cyan: Shoulder &nbsp;|&nbsp; Gold: MuzzlePoint
+      </div>
+      <div class="status" id="status-msg"></div>
+    </div>
+
+    <!-- Right: 24-Color Palette & Export -->
+    <div class="panel">
+      <h2>Tarek 24-Color Palette + Gun</h2>
+      <div class="row" style="margin-bottom:6px;">
+        <span>Active:</span>
+        <div id="active-swatch" class="swatch" style="cursor:default;"></div>
+        <span id="active-hex" style="color:var(--accent);"></span>
+      </div>
+      <div id="palette-container"></div>
+
+      <h2 style="margin-top:12px;">Internal Save & Project State</h2>
+      <div class="row" style="flex-direction:column;align-items:stretch;gap:6px;">
+        <button id="btn-save-local" class="primary">💾 Save Internally (Auto-Saves to Browser)</button>
+        <div class="row" style="margin:0;gap:4px;">
+          <button id="btn-load-local" style="flex:1;">📂 Load Saved</button>
+          <button id="btn-clear-local" style="flex:1;">🗑️ Clear Saved</button>
+        </div>
+        <div class="row" style="margin:0;gap:4px;">
+          <button id="btn-dl-json" style="flex:1;">📥 Download JSON</button>
+          <button id="btn-ul-json" style="flex:1;">📤 Import JSON</button>
+          <input type="file" id="inp-json-file" accept=".json" style="display:none;" />
+        </div>
+        <button id="btn-save-disk">💾 Save Directly to tarek_base_pixels.js</button>
+      </div>
+
+      <h2 style="margin-top:12px;">1-Click PNG Export</h2>
+      <div class="row" style="flex-direction:column;align-items:stretch;">
+        <button id="btn-exp-arms" class="primary">Export tarek_pistol_arms.png (72×20)</button>
+        <button id="btn-exp-sheet">Export 32×40 Full Sheet PNG</button>
+        <button id="btn-copy-offsets">Copy Muzzle / Shoulder Offsets</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./tarek_base_pixels.js"></script>
+  <script>
+    const SPECS = globalThis.TAREK_BASE_SPECS;
+    const W = 32, H = 40, ZOOM = 8;
+    const canvas = document.getElementById("editor");
+    const ctx = canvas.getContext("2d");
+
+    const STATES = ["aim_idle", "aim_walk", "shoot", "reload", "crouch_aim", "crouch_shoot"];
+    const DIRS = ["down", "up", "side"];
+
+    const state = {
+      anim: "aim_idle",
+      dir: "side",
+      flipH: false,
+      showGrid: true,
+      showMarkers: true,
+      showBase: true,
+      playing: false,
+      frameIdx: 0,
+      fps: 8,
+      activeColor: SPECS.palette.olive_jacket[0] || "#565a3a",
+      undoStack: [],
+    };
+
+    // Build default 1px-crisp two-handed pistol overlays from Tarek's exact palette
+    function makeBlank() { return Array.from({ length: H }, () => Array(W).fill("")); }
+    function cloneGrid(g) { return g.map(r => r.slice()); }
+
+    const C = {
+      OUT: "#141518",
+      SPEC: "#686140",
+      OLV_L: "#565a3a",
+      OLV_M: "#515237",
+      OLV_D: "#494c33",
+      SKIN_L: "#976f50",
+      SKIN_D: "#6a503c",
+      GUN_L: "#38404c",
+      GUN_M: "#242a33",
+      GUN_D: "#141518",
+      FL_Y: "#ffe066",
+      FL_O: "#ff922b",
+    };
+
+    function putPts(g, pts) {
+      for (const [x, y, col] of pts) {
+        if (x >= 0 && x < W && y >= 0 && y < H) g[y][x] = col;
+      }
+      return g;
+    }
+
+    function makeArmlessBase(grid, d, cr) {
+      const g = cloneGrid(grid);
+      const clearRect = (x0, x1, y0, y1) => {
+        for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (g[y]) g[y][x] = "";
+      };
+      const sealCol = (x, y0, y1, col = C.OUT) => {
+        for (let y = y0; y <= y1; y++) if (g[y] && !g[y][x]) g[y][x] = col;
+      };
+      if (!cr && d === "down") {
+        clearRect(7, 10, 19, 27); clearRect(21, 24, 19, 27);
+        sealCol(11, 20, 27, C.OUT); sealCol(20, 20, 27, C.OUT);
+      } else if (!cr && d === "side") {
+        // Erase ALL ghost arm and hand pixels behind the back and hip (x=8..12, y=19..26)
+        clearRect(8, 12, 19, 26);
+        // Erase front dangling hand
+        clearRect(20, 22, 20, 27);
+        // Seal back contour with clean dark outline
+        sealCol(13, 19, 26, C.OUT);
+      } else if (!cr && d === "up") {
+        clearRect(7, 11, 18, 27); clearRect(21, 24, 18, 27);
+        sealCol(12, 19, 27, C.OUT); sealCol(20, 19, 27, C.OUT);
+      } else if (cr && d === "down") {
+        clearRect(7, 10, 23, 31); clearRect(21, 24, 23, 31);
+        sealCol(11, 24, 30, C.OUT); sealCol(20, 24, 30, C.OUT);
+      } else if (cr && d === "side") {
+        // Crouch: erase ghost arm and hand on hip (shifted down 5px)
+        clearRect(8, 12, 24, 31);
+        clearRect(19, 22, 25, 31);
+        sealCol(13, 24, 31, C.OUT);
+      } else if (cr && d === "up") {
+        clearRect(7, 10, 22, 30); clearRect(21, 24, 22, 30);
+        sealCol(11, 23, 29, C.OUT); sealCol(20, 23, 29, C.OUT);
+      }
+      return g;
+    }
+
+    function buildDefaultOverlays() {
+      const sideArm = (sy, flash = 0, recoil = 0) => {
+        const g = makeBlank();
+        const rx = recoil ? -1 : 0;
+        const pts = [];
+
+        // sy is chest/grip level = 19 for standing, 24 for crouch.
+        // 1. Pistol (Slide & Barrel at Y = sy - 2 = 17, Frame at Y = sy - 1 = 18):
+        pts.push(
+          [21 + rx, sy - 3, C.OUT], [22 + rx, sy - 3, C.OUT], [23 + rx, sy - 3, C.OUT], [24 + rx, sy - 3, C.OUT], [25 + rx, sy - 3, C.OUT],
+          [21 + rx, sy - 2, C.GUN_M], [22 + rx, sy - 2, C.GUN_L], [23 + rx, sy - 2, C.GUN_L], [24 + rx, sy - 2, C.GUN_L], [25 + rx, sy - 2, C.GUN_M],
+          [26 + rx, sy - 2, C.OUT],
+          [21 + rx, sy - 1, C.GUN_L], [22 + rx, sy - 1, C.GUN_M], [23 + rx, sy - 1, C.OUT], [24 + rx, sy - 1, C.OUT], [25 + rx, sy - 1, C.OUT]
+        );
+
+        // 2. Lead Arm & Shooting Hand (Extending forward at Y = sy - 1..sy = 18..19):
+        pts.push(
+          [18, sy - 1, C.OLV_L], [19, sy - 1, C.OLV_L],
+          [18, sy, C.OLV_M], [19, sy, C.OLV_D],
+          [20, sy - 1, C.OUT],
+          [20, sy, C.SKIN_L], [21, sy, C.SKIN_L], [22, sy, C.SKIN_D],
+          [23, sy, C.OUT]
+        );
+
+        // 3. Support Arm (Rear shoulder at Y = sy - 1 = 18, crossing chest, bending diagonally upward):
+        pts.push(
+          [12, sy - 1, C.OUT], [13, sy - 1, C.SPEC],
+          [12, sy, C.OUT], [13, sy, C.OLV_D],
+          [14, sy, C.OLV_L], [15, sy, C.OLV_M], [16, sy, C.OLV_M], [17, sy, C.OUT],
+          [16, sy + 1, C.OUT], [17, sy + 1, C.OLV_L], [18, sy + 1, C.OLV_L], [19, sy + 1, C.OLV_M],
+          [17, sy + 2, C.OUT], [18, sy + 2, C.OUT], [19, sy + 2, C.OUT]
+        );
+
+        // 4. Second Support Hand (Cupping underneath lead hand at Y = sy + 1..sy + 2):
+        pts.push(
+          [20, sy + 1, C.SKIN_L], [21, sy + 1, C.SKIN_D], [22, sy + 1, C.SKIN_D], [23, sy + 1, C.OUT],
+          [21, sy + 2, C.SKIN_L], [22, sy + 2, C.OUT],
+          [20, sy + 2, C.OUT], [21, sy + 3, C.OUT]
+        );
+
+        if (flash === 1) {
+          pts.push(
+            [26, sy - 2, C.FL_Y], [27, sy - 2, C.FL_Y], [28, sy - 2, C.FL_O],
+            [27, sy - 3, C.FL_O], [27, sy - 1, C.FL_O]
+          );
+        }
+
+        return putPts(g, pts);
+      };
+
+      const downArm = (sy, flash = 0, recoil = 0) => {
+        const g = makeBlank();
+        const ry = recoil ? -1 : 0;
+        const pts = [];
+
+        // Shoulders angled inward from x = 10 and x = 21 at y = sy - 2 (y = 17 when sy = 19)
+        pts.push(
+          [9, sy - 2, C.OUT], [10, sy - 2, C.SPEC], [11, sy - 2, C.OUT],
+          [10, sy - 1, C.OUT], [11, sy - 1, C.OLV_L], [12, sy - 1, C.OLV_M], [13, sy - 1, C.OUT],
+          [12, sy, C.OUT], [13, sy, C.OLV_D],
+          [20, sy - 2, C.OUT], [21, sy - 2, C.SPEC], [22, sy - 2, C.OUT],
+          [18, sy - 1, C.OUT], [19, sy - 1, C.OLV_M], [20, sy - 1, C.OLV_L], [21, sy - 1, C.OUT],
+          [18, sy, C.OLV_D], [19, sy, C.OUT]
+        );
+
+        // Two clasped hands centered on chest at x = 14..17, y = sy..sy + 1
+        pts.push(
+          [14, sy - 1, C.OUT], [15, sy - 1, C.OUT], [16, sy - 1, C.OUT], [17, sy - 1, C.OUT],
+          [14, sy, C.SKIN_L], [15, sy, C.SKIN_L], [16, sy, C.SKIN_L], [17, sy, C.SKIN_L],
+          [14, sy + 1, C.SKIN_D], [15, sy + 1, C.SKIN_L], [16, sy + 1, C.SKIN_L], [17, sy + 1, C.SKIN_D]
+        );
+
+        // Vertical pistol barrel at x = 15..16, y = sy + 2..sy + 3
+        pts.push(
+          [14, sy + 2 + ry, C.OUT], [15, sy + 2 + ry, C.GUN_L], [16, sy + 2 + ry, C.GUN_M], [17, sy + 2 + ry, C.OUT],
+          [14, sy + 3 + ry, C.OUT], [15, sy + 3 + ry, C.GUN_M], [16, sy + 3 + ry, C.GUN_D], [17, sy + 3 + ry, C.OUT],
+          [15, sy + 4 + ry, C.OUT], [16, sy + 4 + ry, C.GUN_D]
+        );
+
+        if (flash === 1) {
+          pts.push(
+            [16, sy + 5, C.FL_Y], [15, sy + 5, C.FL_O], [17, sy + 5, C.FL_O],
+            [16, sy + 6, C.FL_Y], [16, sy + 7, C.FL_O]
+          );
+        }
+
+        return putPts(g, pts);
+      };
+
+      const upArm = (sy, flash = 0, recoil = 0) => {
+        const g = makeBlank();
+        const ry = recoil ? 1 : 0;
+        const pts = [];
+
+        // Two elbows tucked slightly out at x = 10..11 and x = 20..21, y = sy - 2..sy
+        pts.push(
+          [10, sy - 2, C.OUT], [11, sy - 2, C.SPEC],
+          [9, sy - 1, C.OUT], [10, sy - 1, C.OLV_L], [11, sy - 1, C.OLV_M], [12, sy - 1, C.OUT],
+          [10, sy, C.OUT], [11, sy, C.OLV_D], [12, sy, C.OUT],
+          [12, sy - 2, C.OLV_L], [13, sy - 2, C.OLV_M], [13, sy - 3, C.OLV_L], [14, sy - 3, C.OLV_M],
+          [20, sy - 2, C.SPEC], [21, sy - 2, C.OUT],
+          [19, sy - 1, C.OUT], [20, sy - 1, C.OLV_M], [21, sy - 1, C.OLV_L], [22, sy - 1, C.OUT],
+          [19, sy, C.OUT], [20, sy, C.OLV_D], [21, sy, C.OUT],
+          [19, sy - 2, C.OLV_L], [18, sy - 2, C.OLV_M], [18, sy - 3, C.OLV_L], [17, sy - 3, C.OLV_M]
+        );
+
+        // Hands & single barrel centered behind upper back/neck at x = 15..16, y = sy - 5..sy - 4
+        pts.push(
+          [15, sy - 3, C.SKIN_D], [16, sy - 3, C.SKIN_D],
+          [14, sy - 4 + ry, C.OUT], [15, sy - 4 + ry, C.GUN_M], [16, sy - 4 + ry, C.GUN_L], [17, sy - 4 + ry, C.OUT],
+          [14, sy - 5 + ry, C.OUT], [15, sy - 5 + ry, C.GUN_M], [16, sy - 5 + ry, C.GUN_D], [17, sy - 5 + ry, C.OUT],
+          [15, sy - 6 + ry, C.OUT], [16, sy - 6 + ry, C.GUN_D]
+        );
+
+        if (flash === 1) {
+          pts.push(
+            [16, sy - 6, C.FL_Y], [15, sy - 6, C.FL_O], [17, sy - 6, C.FL_O],
+            [16, sy - 7, C.FL_Y], [16, sy - 8, C.FL_O]
+          );
+        }
+
+        return putPts(g, pts);
+      };
+
+      const reloadSide = (sy) => {
+        const g = makeBlank();
+        const pts = [
+          [12, sy - 1, C.OUT], [13, sy - 1, C.SPEC],
+          [14, sy, C.OLV_L], [15, sy, C.OLV_M], [16, sy + 1, C.OLV_D],
+          [18, sy, C.SKIN_L], [19, sy, C.SKIN_L], [20, sy - 1, C.GUN_L], [21, sy - 2, C.GUN_M],
+          [19, sy + 1, C.SKIN_D], [20, sy + 1, C.GUN_D], [20, sy + 2, C.GUN_D],
+        ];
+        return putPts(g, pts);
+      };
+
+      return {
+        "aim_idle:side": [sideArm(19)],
+        "aim_idle:down": [downArm(19)],
+        "aim_idle:up": [upArm(19)],
+        "aim_walk:side": Array.from({ length: 5 }, (_, i) => sideArm(19 + (i % 2))),
+        "aim_walk:down": Array.from({ length: 4 }, (_, i) => downArm(19 + (i % 2))),
+        "aim_walk:up": Array.from({ length: 4 }, (_, i) => upArm(19 + (i % 2))),
+        "shoot:side": [sideArm(19, 1, 0), sideArm(19, 0, 1)],
+        "shoot:down": [downArm(19, 1, 0), downArm(19, 0, 1)],
+        "shoot:up": [upArm(19, 1, 0), upArm(19, 0, 1)],
+        "reload:side": [sideArm(19), reloadSide(19), reloadSide(20), sideArm(19)],
+        "reload:down": [downArm(19), downArm(20), downArm(19)],
+        "reload:up": [upArm(19), upArm(20), upArm(19)],
+        "crouch_aim:side": [sideArm(24)],
+        "crouch_aim:down": [downArm(24)],
+        "crouch_aim:up": [upArm(24)],
+        "crouch_shoot:side": [sideArm(24, 1, 0), sideArm(24, 0, 1)],
+        "crouch_shoot:down": [downArm(24, 1, 0), downArm(24, 0, 1)],
+        "crouch_shoot:up": [upArm(24, 1, 0), upArm(24, 0, 1)],
+      };
+    }
+
+    let overlays = buildDefaultOverlays();
+
+    // Editable MuzzlePoint in 32x40 sprite pixel coords
+    const muzzlePx = {
+      "stand:side": [26, 17],
+      "stand:down": [16, 23],
+      "stand:up": [16, 14],
+      "crouch:side": [26, 22],
+      "crouch:down": [16, 28],
+      "crouch:up": [16, 19],
+    };
+
+    function isCrouch() { return state.anim.startsWith("crouch_"); }
+    function key() { return `${state.anim}:${state.dir}`; }
+    function muzzleKey() { return `${isCrouch() ? "crouch" : "stand"}:${state.dir}`; }
+
+    function initBaseStore() {
+      const bStore = {};
+      for (const k in SPECS.base_frames_rgba_hex) {
+        const [cr, d] = k.split("_");
+        bStore[k] = makeArmlessBase(SPECS.base_frames_rgba_hex[k], d, cr === "crouch");
+      }
+      const wStore = {};
+      for (const k in SPECS.walk_frames_rgba_hex) {
+        const d = k.replace("walk_", "");
+        wStore[k] = SPECS.walk_frames_rgba_hex[k].map(raw => makeArmlessBase(raw, d, false));
+      }
+      return { base: bStore, walk: wStore };
+    }
+
+    let baseStore = initBaseStore();
+
+    function getActiveBaseGrid() {
+      const d = state.dir;
+      const cr = isCrouch();
+      if (state.anim === "aim_walk") {
+        const list = baseStore.walk[`walk_${d}`];
+        const idx = state.frameIdx % list.length;
+        return { grid: list[idx], type: "walk", key: `walk_${d}`, idx };
+      } else {
+        const k = `${cr ? "crouch" : "stand"}_${d}`;
+        return { grid: baseStore.base[k], type: "base", key: k, idx: 0 };
+      }
+    }
+
+    function getBaseGrid() {
+      return getActiveBaseGrid().grid;
+    }
+
+    function getDefaultFps() {
+      const cr = isCrouch();
+      const map = {};
+      for (const a of SPECS.grid_and_anchor.tarek_tscn_animations) map[a.name] = a.fps;
+      if (state.anim === "aim_walk") return map[`walk_${state.dir}`] || 8;
+      if (state.anim === "shoot" || state.anim === "crouch_shoot") return 10;
+      if (state.anim === "reload") return 6;
+      return map[`${cr ? "crouch_idle" : "idle"}_${state.dir}`] || 4;
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const base = getBaseGrid();
+      const ovList = overlays[key()] || [makeBlank()];
+      const ov = ovList[state.frameIdx % ovList.length];
+
+
+      const drawGrid = (g) => {
+        for (let y = 0; y < H; y++) {
+          for (let x = 0; x < W; x++) {
+            const c = g[y][x];
+            if (!c) continue;
+            const dx = state.flipH ? (W - 1 - x) : x;
+            ctx.fillStyle = c;
+            ctx.fillRect(dx * ZOOM, y * ZOOM, ZOOM, ZOOM);
+          }
+        }
+      };
+
+      if (state.showBase) drawGrid(base);
+      drawGrid(ov);
+
+      if (state.showGrid) {
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= W; x++) {
+          ctx.beginPath(); ctx.moveTo(x * ZOOM + 0.5, 0); ctx.lineTo(x * ZOOM + 0.5, H * ZOOM); ctx.stroke();
+        }
+        for (let y = 0; y <= H; y++) {
+          ctx.beginPath(); ctx.moveTo(0, y * ZOOM + 0.5); ctx.lineTo(W * ZOOM, y * ZOOM + 0.5); ctx.stroke();
+        }
+        // Foot baseline y = 39
+        ctx.strokeStyle = "rgba(114, 239, 221, 0.45)";
+        ctx.beginPath(); ctx.moveTo(0, 39 * ZOOM + 0.5); ctx.lineTo(W * ZOOM, 39 * ZOOM + 0.5); ctx.stroke();
+      }
+
+      if (state.showMarkers) {
+        const sh = isCrouch()
+          ? SPECS.gun_and_muzzle_offsets.pivot_origin_sprite_px.crouching_shoulder
+          : SPECS.gun_and_muzzle_offsets.pivot_origin_sprite_px.standing_shoulder;
+        const [mxRaw, my] = muzzlePx[muzzleKey()];
+        const mx = state.flipH ? (W - 1 - mxRaw) : mxRaw;
+
+        const drawCross = (px, py, color) => {
+          const cx = px * ZOOM + ZOOM / 2, cy = py * ZOOM + ZOOM / 2;
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(cx - 8, cy); ctx.lineTo(cx + 8, cy);
+          ctx.moveTo(cx, cy - 8); ctx.lineTo(cx, cy + 8);
+          ctx.stroke();
+        };
+        drawCross(sh[0], sh[1], "#38bdf8");
+        drawCross(mx, my, "#ffd166");
+      }
+
+      updateReadout();
+    }
+
+    function updateReadout() {
+      const ovList = overlays[key()] || [makeBlank()];
+      document.getElementById("frame-label").textContent = `${(state.frameIdx % ovList.length) + 1} / ${ovList.length}`;
+      const [mx, my] = muzzlePx[muzzleKey()];
+      document.getElementById("inp-mx").value = mx;
+      document.getElementById("inp-my").value = my;
+      const sh = isCrouch() ? SPECS.gun_and_muzzle_offsets.weapon_component_exports_local.crouch_shoulder_offset : SPECS.gun_and_muzzle_offsets.weapon_component_exports_local.shoulder_offset;
+      const worldMx = Math.round(((state.flipH ? W - 1 - mx : mx) - 16) * 3);
+      const worldMy = Math.round(-14 + (my - 35) * 3);
+      document.getElementById("offset-readout").textContent =
+        `shoulder_offset (3x): (${sh[0]}, ${sh[1]})\n` +
+        `Muzzle sprite px: (${mx}, ${my})\n` +
+        `Muzzle player local (3x): (${worldMx}, ${worldMy})\n` +
+        `Pivot-relative (3x): (${worldMx - sh[0]}, ${worldMy - sh[1]})\n` +
+        `foot_baseline_y: ${SPECS.grid_and_anchor.foot_baseline_y}`;
+    }
+
+    // Build UI Buttons & Palette
+    const stateBox = document.getElementById("state-btns");
+    STATES.forEach(s => {
+      const b = document.createElement("button");
+      b.textContent = s;
+      b.onclick = () => {
+        state.anim = s; state.frameIdx = 0; state.fps = getDefaultFps();
+        document.getElementById("inp-fps").value = state.fps;
+        refreshButtons(); render();
+      };
+      stateBox.appendChild(b);
+    });
+
+    const dirBox = document.getElementById("dir-btns");
+    DIRS.forEach(d => {
+      const b = document.createElement("button");
+      b.textContent = d;
+      b.onclick = () => {
+        state.dir = d; state.frameIdx = 0; state.fps = getDefaultFps();
+        document.getElementById("inp-fps").value = state.fps;
+        refreshButtons(); render();
+      };
+      dirBox.appendChild(b);
+    });
+
+    function refreshButtons() {
+      [...stateBox.children].forEach(b => b.classList.toggle("active", b.textContent === state.anim));
+      [...dirBox.children].forEach(b => b.classList.toggle("active", b.textContent === state.dir));
+    }
+
+    const palBox = document.getElementById("palette-container");
+    const groups = [
+      ["Skin", SPECS.palette.skin],
+      ["Hair / Outline", SPECS.palette.hair_outline],
+      ["Olive Jacket", SPECS.palette.olive_jacket],
+      ["Harness / Belt", SPECS.palette.harness_belt],
+      ["Pants / Boots", SPECS.palette.pants_boots],
+      ["Gunmetal & Flash", [C.GUN_L, C.GUN_M, C.FL_Y, C.FL_O]],
+    ];
+    groups.forEach(([label, colors]) => {
+      const wrap = document.createElement("div");
+      wrap.className = "palette-group";
+      wrap.innerHTML = `<div class="palette-label">${label}</div>`;
+      const swRow = document.createElement("div");
+      swRow.className = "swatches";
+      [...new Set(colors)].forEach(hx => {
+        const sw = document.createElement("div");
+        sw.className = "swatch";
+        sw.style.background = hx;
+        sw.title = hx;
+        sw.onclick = () => selectColor(hx);
+        swRow.appendChild(sw);
+      });
+      wrap.appendChild(swRow);
+      palBox.appendChild(wrap);
+    });
+
+    let toolMode = "brush";
+    const btnBrush = document.getElementById("btn-tool-brush");
+    const btnErase = document.getElementById("btn-tool-erase");
+
+    function selectColor(hx) {
+      toolMode = "brush";
+      if (btnBrush && btnErase) {
+        btnBrush.classList.add("active");
+        btnErase.classList.remove("active");
+      }
+      state.activeColor = hx;
+      document.getElementById("active-swatch").style.background = hx;
+      document.getElementById("active-hex").textContent = hx;
+      document.querySelectorAll("#palette-container .swatch").forEach(el => {
+        el.classList.toggle("selected", el.title === hx);
+      });
+    }
+    selectColor(state.activeColor);
+
+    // 1px Painting / Erasing
+    let painting = false, paintMode = 1;
+
+    btnBrush.onclick = () => {
+      toolMode = "brush";
+      btnBrush.classList.add("active");
+      btnErase.classList.remove("active");
+    };
+    btnErase.onclick = () => {
+      toolMode = "eraser";
+      btnErase.classList.add("active");
+      btnBrush.classList.remove("active");
+      document.getElementById("active-hex").textContent = "Eraser (Transparent)";
+      document.querySelectorAll("#palette-container .swatch").forEach(el => el.classList.remove("selected"));
+    };
+
+    function getCellFromEvt(e) {
+      const rect = canvas.getBoundingClientRect();
+      const vx = Math.floor((e.clientX - rect.left) / ZOOM);
+      const vy = Math.floor((e.clientY - rect.top) / ZOOM);
+      const x = state.flipH ? (W - 1 - vx) : vx;
+      return [x, vy];
+    }
+    function applyPaint(x, y) {
+      if (x < 0 || x >= W || y < 0 || y >= H) return;
+      const list = overlays[key()];
+      const ovIdx = state.frameIdx % list.length;
+      const ovGrid = list[ovIdx];
+      const baseInfo = getActiveBaseGrid();
+      const baseGrid = baseInfo.grid;
+
+      if (paintMode === 0) {
+        // Erase mode: deletes BOTH overlay and character base body pixels!
+        let changed = false;
+        if (ovGrid[y][x] !== "") { ovGrid[y][x] = ""; changed = true; }
+        if (baseGrid[y][x] !== "") { baseGrid[y][x] = ""; changed = true; }
+        if (changed) { render(); triggerAutoSave(); }
+      } else {
+        // Brush mode: paints on overlay
+        if (ovGrid[y][x] !== state.activeColor) {
+          ovGrid[y][x] = state.activeColor;
+          render();
+          triggerAutoSave();
+        }
+      }
+    }
+    canvas.addEventListener("contextmenu", e => e.preventDefault());
+    canvas.addEventListener("mousedown", e => {
+      const list = overlays[key()];
+      const ovIdx = state.frameIdx % list.length;
+      const baseInfo = getActiveBaseGrid();
+      state.undoStack.push({
+        k: key(),
+        ovIdx,
+        ovGrid: cloneGrid(list[ovIdx]),
+        baseType: baseInfo.type,
+        baseKey: baseInfo.key,
+        baseIdx: baseInfo.idx,
+        baseGrid: cloneGrid(baseInfo.grid)
+      });
+      if (state.undoStack.length > 50) state.undoStack.shift();
+      paintMode = (e.button === 2 || toolMode === "eraser") ? 0 : 1;
+      painting = true;
+      const [x, y] = getCellFromEvt(e);
+      applyPaint(x, y);
+    });
+    window.addEventListener("mouseup", () => { painting = false; });
+    canvas.addEventListener("mousemove", e => {
+      const [x, y] = getCellFromEvt(e);
+      const list = overlays[key()];
+      const idx = state.frameIdx % list.length;
+      const ovCol = (list[idx] && list[idx][y] && list[idx][y][x]) || "";
+      const baseCol = (getBaseGrid()[y] && getBaseGrid()[y][x]) || "";
+      const layerInfo = ovCol ? `Overlay: ${ovCol}` : baseCol ? `Character Body: ${baseCol}` : "Empty";
+      document.getElementById("hover-coord").textContent = `Pixel: (${x}, ${y}) | ${layerInfo}`;
+      if (painting) applyPaint(x, y);
+    });
+
+    function undo() {
+      const item = state.undoStack.pop();
+      if (!item) return;
+      overlays[item.k][item.ovIdx] = item.ovGrid;
+      if (item.baseType === "walk") {
+        baseStore.walk[item.baseKey][item.baseIdx] = item.baseGrid;
+      } else {
+        baseStore.base[item.baseKey] = item.baseGrid;
+      }
+      render();
+      triggerAutoSave();
+    }
+    document.getElementById("btn-undo").onclick = undo;
+    window.addEventListener("keydown", e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); undo(); } });
+    document.getElementById("btn-clear-ov").onclick = () => {
+      const list = overlays[key()];
+      list[state.frameIdx % list.length] = makeBlank();
+      render();
+      triggerAutoSave();
+      document.getElementById("status-msg").textContent = "Cleared overlay for current frame.";
+    };
+    document.getElementById("btn-reset-ov").onclick = () => {
+      overlays = buildDefaultOverlays();
+      baseStore = initBaseStore();
+      render();
+      triggerAutoSave();
+      document.getElementById("status-msg").textContent = "Reset all overlays & character body to defaults.";
+    };
+
+    // Playback Loop
+    let timer = null;
+    function togglePlay() {
+      state.playing = !state.playing;
+      document.getElementById("btn-play").textContent = state.playing ? "Pause" : "Play";
+      if (timer) clearInterval(timer);
+      if (state.playing) {
+        timer = setInterval(() => {
+          const len = (overlays[key()] || [1]).length;
+          state.frameIdx = (state.frameIdx + 1) % len;
+          render();
+        }, Math.max(30, Math.round(1000 / Math.max(1, state.fps))));
+      }
+    }
+    document.getElementById("btn-play").onclick = togglePlay;
+    document.getElementById("btn-prev").onclick = () => { const l = overlays[key()].length; state.frameIdx = (state.frameIdx - 1 + l) % l; render(); };
+    document.getElementById("btn-next").onclick = () => { state.frameIdx = (state.frameIdx + 1) % overlays[key()].length; render(); };
+    document.getElementById("inp-fps").onchange = e => { state.fps = Number(e.target.value) || 8; if (state.playing) { togglePlay(); togglePlay(); } };
+
+    document.getElementById("chk-flip").onchange = e => { state.flipH = e.target.checked; render(); };
+    document.getElementById("chk-grid").onchange = e => { state.showGrid = e.target.checked; render(); };
+    document.getElementById("chk-markers").onchange = e => { state.showMarkers = e.target.checked; render(); };
+    document.getElementById("chk-base-visible").onchange = e => { state.showBase = e.target.checked; render(); };
+    document.getElementById("inp-mx").onchange = e => { muzzlePx[muzzleKey()][0] = Number(e.target.value) || 0; render(); triggerAutoSave(); };
+    document.getElementById("inp-my").onchange = e => { muzzlePx[muzzleKey()][1] = Number(e.target.value) || 0; render(); triggerAutoSave(); };
+
+    // Export Helpers
+    function downloadCanvas(c, filename) {
+      const a = document.createElement("a");
+      a.download = filename;
+      a.href = c.toDataURL("image/png");
+      a.click();
+      document.getElementById("status-msg").textContent = `Exported ${filename}`;
+    }
+
+    document.getElementById("btn-exp-arms").onclick = () => {
+      // Export 72x20 (3 frames: side, down, up; 24x20 each centered on shoulder)
+      const c = document.createElement("canvas");
+      c.width = 72; c.height = 20;
+      const g = c.getContext("2d");
+      const sh = SPECS.gun_and_muzzle_offsets.pivot_origin_sprite_px.standing_shoulder;
+      const sx0 = Math.round(sh[0]), sy0 = Math.round(sh[1]);
+      ["side", "down", "up"].forEach((d, idx) => {
+        const grid = overlays[`aim_idle:${d}`][0];
+        for (let y = 0; y < H; y++) {
+          for (let x = 0; x < W; x++) {
+            const col = grid[y][x];
+            if (!col) continue;
+            const tx = idx * 24 + 12 + (x - sx0);
+            const ty = 10 + (y - sy0);
+            if (tx >= idx * 24 && tx < (idx + 1) * 24 && ty >= 0 && ty < 20) {
+              g.fillStyle = col;
+              g.fillRect(tx, ty, 1, 1);
+            }
+          }
+        }
+      });
+      downloadCanvas(c, "tarek_pistol_arms.png");
+    };
+
+    document.getElementById("btn-exp-sheet").onclick = () => {
+      const rows = Object.keys(overlays);
+      const maxCols = Math.max(...rows.map(k => overlays[k].length));
+      const c = document.createElement("canvas");
+      c.width = maxCols * W; c.height = rows.length * H;
+      const g = c.getContext("2d");
+      rows.forEach((k, r) => {
+        const [anim, d] = k.split(":");
+        const cr = anim.startsWith("crouch_");
+        overlays[k].forEach((ov, colIdx) => {
+          let base;
+          if (anim === "aim_walk") {
+            const list = baseStore.walk[`walk_${d}`];
+            base = list[colIdx % list.length];
+          } else {
+            base = baseStore.base[`${cr ? "crouch" : "stand"}_${d}`];
+          }
+          const draw = (grid) => {
+            for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+              if (grid[y][x]) { g.fillStyle = grid[y][x]; g.fillRect(colIdx * W + x, r * H + y, 1, 1); }
+            }
+          };
+          draw(base); draw(ov);
+        });
+      });
+      downloadCanvas(c, "tarek_32x40_sheet.png");
+    };
+
+    // Persistence & Auto-Save
+    const STORAGE_KEY = "tarek_workbench_state_v1";
+    let autoSaveTimer = null;
+
+    function triggerAutoSave() {
+      if (autoSaveTimer) clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(() => {
+        saveInternally(true);
+      }, 500);
+    }
+
+    function saveInternally(silent = false) {
+      try {
+        const payload = {
+          overlays,
+          baseStore,
+          muzzlePx,
+          timestamp: new Date().toISOString()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        if (!silent) {
+          document.getElementById("status-msg").textContent = `Saved internally to browser at ${new Date().toLocaleTimeString()}!`;
+        }
+      } catch (e) {
+        console.error("Local save error:", e);
+      }
+    }
+
+    function loadInternally() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          document.getElementById("status-msg").textContent = "No saved state found in browser.";
+          return false;
+        }
+        const data = JSON.parse(raw);
+        if (data.overlays) overlays = data.overlays;
+        if (data.baseStore) baseStore = data.baseStore;
+        if (data.muzzlePx) Object.assign(muzzlePx, data.muzzlePx);
+        render();
+        const timeStr = data.timestamp ? new Date(data.timestamp).toLocaleTimeString() : "";
+        document.getElementById("status-msg").textContent = `Restored changes from internal storage (${timeStr})!`;
+        return true;
+      } catch (e) {
+        console.error("Load error:", e);
+        return false;
+      }
+    }
+
+    document.getElementById("btn-save-local").onclick = () => saveInternally(false);
+    document.getElementById("btn-load-local").onclick = () => loadInternally();
+    document.getElementById("btn-clear-local").onclick = () => {
+      localStorage.removeItem(STORAGE_KEY);
+      overlays = buildDefaultOverlays();
+      baseStore = initBaseStore();
+      render();
+      document.getElementById("status-msg").textContent = "Cleared browser storage and reset to clean defaults.";
+    };
+
+    document.getElementById("btn-dl-json").onclick = () => {
+      const payload = {
+        overlays,
+        baseStore,
+        muzzlePx,
+        timestamp: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "tarek_workbench_state.json";
+      a.click();
+      document.getElementById("status-msg").textContent = "Downloaded tarek_workbench_state.json backup!";
+    };
+
+    const fileInput = document.getElementById("inp-json-file");
+    document.getElementById("btn-ul-json").onclick = () => fileInput.click();
+    fileInput.onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (data.overlays) overlays = data.overlays;
+          if (data.baseStore) baseStore = data.baseStore;
+          if (data.muzzlePx) Object.assign(muzzlePx, data.muzzlePx);
+          saveInternally(true);
+          render();
+          document.getElementById("status-msg").textContent = `Imported state from ${file.name}!`;
+        } catch (err) {
+          alert("Invalid JSON file: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    document.getElementById("btn-save-disk").onclick = async () => {
+      const updatedSpecs = JSON.parse(JSON.stringify(SPECS));
+      for (const k in baseStore.base) {
+        updatedSpecs.base_frames_rgba_hex[k] = baseStore.base[k];
+      }
+      for (const k in baseStore.walk) {
+        updatedSpecs.walk_frames_rgba_hex[k] = baseStore.walk[k];
+      }
+      updatedSpecs.gun_and_muzzle_offsets.muzzle_sprite_px = muzzlePx;
+      updatedSpecs.overlays = overlays;
+
+      const jsCode = `// Updated by Tarek Sprite Workbench (${new Date().toISOString()})\n` +
+        `globalThis.TAREK_BASE_SPECS = ${JSON.stringify(updatedSpecs, null, 2)};\n` +
+        `if (typeof module !== "undefined" && module.exports) {\n` +
+        `  module.exports = globalThis.TAREK_BASE_SPECS;\n` +
+        `}\n`;
+
+      if (window.showSaveFilePicker) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: "tarek_base_pixels.js",
+            types: [{ description: "JavaScript file", accept: { "text/javascript": [".js"] } }]
+          });
+          const writable = await handle.createWritable();
+          await writable.write(jsCode);
+          await writable.close();
+          document.getElementById("status-msg").textContent = "Directly saved tarek_base_pixels.js to disk!";
+          return;
+        } catch (e) {
+          if (e.name !== "AbortError") console.error(e);
+        }
+      }
+
+      // Fallback: download and copy
+      await navigator.clipboard.writeText(jsCode);
+      const blob = new Blob([jsCode], { type: "text/javascript" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "tarek_base_pixels.js";
+      a.click();
+      document.getElementById("status-msg").textContent = "Downloaded tarek_base_pixels.js & copied code to clipboard!";
+    };
+
+    document.getElementById("btn-copy-offsets").onclick = async () => {
+      const txt = JSON.stringify({
+        shoulder_offset: SPECS.gun_and_muzzle_offsets.weapon_component_exports_local.shoulder_offset,
+        crouch_shoulder_offset: SPECS.gun_and_muzzle_offsets.weapon_component_exports_local.crouch_shoulder_offset,
+        muzzle_sprite_px: muzzlePx,
+      }, null, 2);
+      await navigator.clipboard.writeText(txt);
+      document.getElementById("status-msg").textContent = "Copied MuzzlePoint & shoulder_offset JSON to clipboard!";
+    };
+
+    // Auto-load on startup if present
+    loadInternally();
+    refreshButtons();
+    render();
+  </script>
+</body>
+</html>

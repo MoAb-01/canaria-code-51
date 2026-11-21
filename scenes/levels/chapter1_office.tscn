@@ -1,0 +1,202 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/levels/chapter1_office.gd" id="1_office_scr"]
+[ext_resource type="Texture2D" path="res://assets/textures/office/office_room_bg.png" id="2_room_bg"]
+[ext_resource type="Texture2D" path="res://assets/textures/office/office_desk.png" id="3_desk_tex"]
+[ext_resource type="PackedScene" path="res://entities/player/tarek.tscn" id="4_tarek_scn"]
+[ext_resource type="PackedScene" path="res://scenes/ui/desk_inspect_view.tscn" id="5_inspect_scn"]
+
+[sub_resource type="RectangleShape2D" id="Rect_wall_top"]
+size = Vector2(540, 40)
+
+[sub_resource type="RectangleShape2D" id="Rect_wall_side"]
+size = Vector2(40, 420)
+
+[sub_resource type="RectangleShape2D" id="Rect_wall_bot_left"]
+size = Vector2(120, 40)
+
+[sub_resource type="RectangleShape2D" id="Rect_wall_bot_right"]
+size = Vector2(360, 40)
+
+[sub_resource type="RectangleShape2D" id="Rect_wall_door_cap"]
+size = Vector2(96, 24)
+
+[sub_resource type="RectangleShape2D" id="Rect_filing_cabinet"]
+size = Vector2(82, 92)
+
+[sub_resource type="RectangleShape2D" id="Rect_desk_body"]
+size = Vector2(164, 72)
+
+[sub_resource type="RectangleShape2D" id="Rect_desk_interact"]
+size = Vector2(228, 148)
+
+[sub_resource type="RectangleShape2D" id="Rect_doorway"]
+size = Vector2(68, 42)
+
+[node name="Chapter1Office" type="Node2D"]
+script = ExtResource("1_office_scr")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+z_index = -10
+offset_left = -1200.0
+offset_top = -800.0
+offset_right = 1200.0
+offset_bottom = 800.0
+color = Color(0, 0, 0, 1)
+
+[node name="RoomBackground" type="Sprite2D" parent="."]
+z_index = -1
+texture_filter = 1
+scale = Vector2(3, 3)
+texture = ExtResource("2_room_bg")
+
+[node name="OfficeCamera" type="Camera2D" parent="."]
+position = Vector2(0, 0)
+zoom = Vector2(1.55, 1.55)
+
+[node name="Walls" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+
+[node name="TopWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(0, -128)
+shape = SubResource("Rect_wall_top")
+
+[node name="LeftWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(-276, 60)
+shape = SubResource("Rect_wall_side")
+
+[node name="RightWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(272, 60)
+shape = SubResource("Rect_wall_side")
+
+[node name="BottomLeftWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(-216, 250)
+shape = SubResource("Rect_wall_bot_left")
+
+[node name="BottomRightWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(86, 250)
+shape = SubResource("Rect_wall_bot_right")
+
+[node name="DoorwayBottomCap" type="CollisionShape2D" parent="Walls"]
+position = Vector2(-126, 296)
+shape = SubResource("Rect_wall_door_cap")
+
+[node name="FilingCabinetCollider" type="CollisionShape2D" parent="Walls"]
+position = Vector2(-212, -72)
+shape = SubResource("Rect_filing_cabinet")
+
+[node name="DoorwayTrigger" type="Area2D" parent="."]
+position = Vector2(-126, 264)
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorwayTrigger"]
+shape = SubResource("Rect_doorway")
+
+[node name="Entities" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Tarek" parent="Entities" instance=ExtResource("4_tarek_scn")]
+position = Vector2(66, -15)
+
+[node name="OfficeDesk" type="StaticBody2D" parent="Entities"]
+position = Vector2(66, 12)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="Entities/OfficeDesk"]
+texture_filter = 1
+scale = Vector2(3, 3)
+texture = ExtResource("3_desk_tex")
+offset = Vector2(0, -10.5)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Entities/OfficeDesk"]
+position = Vector2(0, -6)
+shape = SubResource("Rect_desk_body")
+
+[node name="DeskInteractZone" type="Area2D" parent="Entities/OfficeDesk"]
+collision_layer = 4
+collision_mask = 1
+input_pickable = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Entities/OfficeDesk/DeskInteractZone"]
+position = Vector2(0, -6)
+shape = SubResource("Rect_desk_interact")
+
+[node name="DeskPromptAnchor" type="Marker2D" parent="Entities/OfficeDesk"]
+position = Vector2(0, -76)
+
+[node name="DeskAshtrayFX" type="Node2D" parent="Entities/OfficeDesk"]
+position = Vector2(55, -59)
+
+[node name="DeskEmber" type="ColorRect" parent="Entities/OfficeDesk/DeskAshtrayFX"]
+texture_filter = 1
+offset_left = -1.5
+offset_top = -1.5
+offset_right = 1.5
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(1, 0.42, 0.12, 0.9)
+
+[node name="DeskSmoke" type="CPUParticles2D" parent="Entities/OfficeDesk/DeskAshtrayFX"]
+texture_filter = 1
+position = Vector2(0, -2)
+amount = 10
+lifetime = 2.2
+preprocess = 2.0
+direction = Vector2(0, -1)
+spread = 10.0
+gravity = Vector2(1.5, -10)
+initial_velocity_min = 4.0
+initial_velocity_max = 8.0
+tangential_accel_min = -4.0
+tangential_accel_max = 4.0
+scale_amount_min = 3.0
+scale_amount_max = 3.0
+
+[node name="HUDLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="PromptLabel" type="Label" parent="HUDLayer"]
+visible = false
+texture_filter = 2
+theme_override_colors/font_color = Color(1, 0.93, 0.72, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 18
+text = "[E] Inspect Desk"
+horizontal_alignment = 1
+
+[node name="IntroOverlay" type="CanvasLayer" parent="."]
+layer = 40
+
+[node name="BlackScreen" type="ColorRect" parent="IntroOverlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="ChapterLabel" type="Label" parent="IntroOverlay"]
+modulate = Color(1, 1, 1, 0)
+texture_filter = 2
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -40.0
+offset_right = 220.0
+offset_bottom = 40.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.95, 0.92, 0.84, 1)
+theme_override_font_sizes/font_size = 56
+text = "Chapter I"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DeskInspectView" parent="." instance=ExtResource("5_inspect_scn")]

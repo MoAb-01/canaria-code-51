@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 EventBus="*res://core/event_bus.gd"
+AudioManager="*res://core/audio_manager.gd"
 GameState="*res://core/game_state.gd"
 ObjectiveManager="*res://core/objective_manager.gd"
 SaveManager="*res://core/save_manager.gd"
@@ -32,11 +33,6 @@ window/size/mode=4
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
-
-[gui]
-
-theme/default_font_antialiasing=0
-theme/default_font_subpixel_positioning=0
 
 [input]
 

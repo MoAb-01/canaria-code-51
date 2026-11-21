@@ -1,0 +1,176 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/desk_inspect_view.gd" id="1_inspect_scr"]
+[ext_resource type="Texture2D" path="res://assets/textures/office/desk_pov.png" id="2_desk_pov"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_caption"]
+bg_color = Color(0.06, 0.07, 0.1, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.76, 0.64, 0.42, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_back_normal"]
+bg_color = Color(0.09, 0.1, 0.14, 0.88)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.76, 0.64, 0.42, 0.85)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_back_hover"]
+bg_color = Color(0.18, 0.16, 0.14, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1.0, 0.86, 0.48, 1.0)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="DeskInspectView" type="CanvasLayer"]
+layer = 30
+script = ExtResource("1_inspect_scr")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Backdrop" type="ColorRect" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.03, 0.03, 0.04, 1)
+
+[node name="DeskStage" type="AspectRatioContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+ratio = 1.7902
+
+[node name="DeskPOV" type="TextureRect" parent="Root/DeskStage"]
+texture_filter = 1
+layout_mode = 2
+texture = ExtResource("2_desk_pov")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HotspotPhoto" type="Button" parent="Root/DeskStage/DeskPOV"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.05
+anchor_top = 0.03
+anchor_right = 0.255
+anchor_bottom = 0.395
+flat = true
+tooltip_text = "Framed Family Photo"
+
+[node name="HotspotPhone" type="Button" parent="Root/DeskStage/DeskPOV"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.655
+anchor_top = 0.025
+anchor_right = 0.97
+anchor_bottom = 0.455
+flat = true
+tooltip_text = "Vintage Desk Phone"
+
+[node name="HotspotAshtray" type="Button" parent="Root/DeskStage/DeskPOV"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.095
+anchor_top = 0.64
+anchor_right = 0.225
+anchor_bottom = 0.875
+flat = true
+tooltip_text = "Ashtray & Cigarette"
+
+[node name="HotspotBadge" type="Button" parent="Root/DeskStage/DeskPOV"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.765
+anchor_top = 0.625
+anchor_right = 0.92
+anchor_bottom = 0.92
+flat = true
+tooltip_text = "Gold Service Badge"
+
+[node name="CaptionPanel" type="PanelContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 240.0
+offset_top = -112.0
+offset_right = -240.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBox_caption")
+
+[node name="Margin" type="MarginContainer" parent="Root/CaptionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Root/CaptionPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="Root/CaptionPanel/Margin/VBox"]
+texture_filter = 2
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.82, 0.5, 1)
+theme_override_font_sizes/font_size = 20
+text = "Tarek's Desk"
+
+[node name="BodyLabel" type="Label" parent="Root/CaptionPanel/Margin/VBox"]
+texture_filter = 2
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.92, 0.94, 1)
+theme_override_font_sizes/font_size = 17
+autowrap_mode = 2
+text = "Click an item on the desk to inspect it."
+
+[node name="BackButton" type="Button" parent="Root"]
+texture_filter = 2
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -168.0
+offset_top = 28.0
+offset_right = -32.0
+offset_bottom = 78.0
+grow_horizontal = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.96, 0.91, 0.78, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBox_back_normal")
+theme_override_styles/hover = SubResource("StyleBox_back_hover")
+theme_override_styles/pressed = SubResource("StyleBox_back_hover")
+text = "[Back]"

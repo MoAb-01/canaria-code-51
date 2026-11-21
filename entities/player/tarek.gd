@@ -33,13 +33,15 @@ var _nearby_interactables: Array[Area2D] = []
 @onready var flashlight_spill: PointLight2D = get_node_or_null("FlashlightPivot/FlashlightSpill")
 @onready var flashlight_audio: AudioStreamPlayer2D = get_node_or_null("FlashlightAudio")
 @onready var weapon: Node2D = get_node_or_null("WeaponComponent")
+var has_weapon: bool:
+	get:
+		return weapon != null and weapon.weapon_data != null
 @onready var health: Node = get_node_or_null("HealthComponent")
 @onready var cover: Node2D = get_node_or_null("CoverDetectorComponent")
 @onready var dodge: Node = get_node_or_null("DodgeComponent")
 @onready var defense: Node = get_node_or_null("DefenseComponent")
 
-const BASE_VISUAL_Y: float = -14.0
-const RAY_LENGTH: float = 54.0
+const BASE_VISUAL_Y: float = -14.0; const RAY_LENGTH: float = 54.0
 
 func _ready() -> void:
 	super._ready()
@@ -87,6 +89,7 @@ func _character_process(delta: float) -> void:
 		interaction_cooldown = 0.35
 		velocity = velocity.move_toward(Vector2.ZERO, friction_rate * delta)
 		move_and_slide()
+		sprite.scale = Vector2(3, 3); sprite.offset = Vector2(0, -15)
 		sprite.play(("flashlight_idle_" if flashlight_on else "idle_") + get_direction_suffix())
 		return
 	if dodge and dodge.is_dodging:
@@ -154,7 +157,7 @@ func _handle_actions() -> void:
 		return
 	if Input.is_action_just_pressed("attack"):
 		if combat_mode and weapon and not is_defending():
-			weapon.set_aim_target(get_global_mouse_position())
+			weapon.set_aim_target(get_global_mouse_position(), true)
 			weapon.try_fire()
 			return
 		elif current_state != State.COMBAT:
@@ -181,8 +184,8 @@ func _apply_movement(delta: float) -> void:
 		State.GRAB: target_speed = walk_speed * 0.45
 		State.COMBAT: target_speed = 0.0
 		State.NORMAL:
-			if Input.is_action_pressed("speed_sprint") or Input.is_action_pressed("sprint"):
-				target_speed = sprint_speed
+			if weapon and weapon.is_drawn: target_speed = walk_speed * 0.62
+			elif Input.is_action_pressed("speed_sprint") or Input.is_action_pressed("sprint"): target_speed = sprint_speed
 		State.JUMP: target_speed = walk_speed * 1.05
 
 	if is_defending():
@@ -192,8 +195,8 @@ func _apply_movement(delta: float) -> void:
 		return
 
 	if input_vec != Vector2.ZERO and current_state != State.COMBAT:
-		if current_state != State.GRAB: last_facing_dir = _to_cardinal(input_vec)
-		else: input_vec = Vector2(signf(input_vec.x), 0.0) if last_facing_dir.x != 0.0 else Vector2(0.0, signf(input_vec.y))
+		if current_state != State.GRAB and not (combat_mode and weapon): last_facing_dir = _to_cardinal(input_vec)
+		elif current_state == State.GRAB: input_vec = Vector2(signf(input_vec.x), 0.0) if last_facing_dir.x != 0.0 else Vector2(0.0, signf(input_vec.y))
 		velocity = velocity.move_toward(input_vec * target_speed, accel_rate * delta)
 	else:
 		var fric := friction_rate * (0.35 if current_state == State.JUMP else 1.0)
@@ -223,10 +226,9 @@ func _update_visuals() -> void:
 	if current_state == State.GRAB:
 		sprite.play(("push_" if velocity.dot(last_facing_dir) > 0.0 else "pull_") + dir if moving else "grab_still_" + dir)
 		return
-	if combat_mode:
-		if cover and cover.is_peeking: sprite.play("peek_shoot_" + dir); return
-		if cover and cover.is_crouching: sprite.play("crouch_cover_" + dir); return
-		sprite.play("standing_aim_" + dir); return
+	if combat_mode and weapon:
+		weapon.update_aim_visuals(sprite, dir, velocity, last_facing_dir, current_state == State.CROUCH or (cover != null and cover.is_crouching), cover != null and cover.is_peeking); return
+	sprite.speed_scale = 1.0; sprite.flip_h = (last_facing_dir == Vector2.LEFT); sprite.scale = Vector2(3, 3); sprite.offset = Vector2(0, -15)
 	if flashlight_on:
 		if current_state == State.CROUCH:
 			sprite.play("flashlight_crouch_" + dir)
